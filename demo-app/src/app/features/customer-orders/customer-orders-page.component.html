@@ -1,0 +1,83 @@
+<mat-toolbar color="primary" class="page-toolbar">
+  <button mat-icon-button type="button" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span class="toolbar-title">My Orders</span>
+  <span class="toolbar-spacer" aria-hidden="true"></span>
+  <button mat-button type="button" (click)="goToProducts()">
+    <mat-icon aria-hidden="true">inventory_2</mat-icon>
+    Products
+  </button>
+  <button mat-button type="button" (click)="logout()">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    Logout
+  </button>
+</mat-toolbar>
+
+<main class="content">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">My Orders</h1>
+      <p class="page-subtitle">View your orders and place new ones.</p>
+    </div>
+    <button mat-flat-button (click)="openCreateDialog()" [disabled]="isLoading()">
+      <mat-icon>add</mat-icon>
+      New Order
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <p class="loading-status" role="status">Loading your orders...</p>
+  }
+
+  @if (hasError()) {
+    <div class="error-alert" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      Could not load your orders. Please try again.
+    </div>
+  }
+
+  <div class="table-container" [class.is-busy]="isLoading()">
+    <table mat-table [dataSource]="orders()" aria-label="My orders">
+
+      <ng-container matColumnDef="products">
+        <th mat-header-cell *matHeaderCellDef scope="col">Products</th>
+        <td mat-cell *matCellDef="let order">
+          <div class="products-cell">
+            @for (item of (order.items ?? []); track $index) {
+              <span class="product-chip">{{ item.product.name }} x{{ item.quantity }}</span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="destination">
+        <th mat-header-cell *matHeaderCellDef scope="col">Destination</th>
+        <td mat-cell *matCellDef="let order">{{ order.destination }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef scope="col">Status</th>
+        <td mat-cell *matCellDef="let order">
+          <span [class]="'status-badge status-' + order.status.toLowerCase()">
+            {{ order.status }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="orderDate">
+        <th mat-header-cell *matHeaderCellDef scope="col">Date</th>
+        <td mat-cell *matCellDef="let order">{{ formatDate(order.orderDate) }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-mdc-row" *matNoDataRow>
+        <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+          You have no orders yet. Click "New Order" to place one.
+        </td>
+      </tr>
+    </table>
+  </div>
+</main>

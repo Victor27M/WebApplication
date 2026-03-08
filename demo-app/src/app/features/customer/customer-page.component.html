@@ -1,0 +1,23 @@
+<mat-toolbar color="primary">
+  <span>Customer Portal</span>
+  <span style="flex: 1 1 auto;" aria-hidden="true"></span>
+  <button mat-button type="button" (click)="logout()">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    Logout
+  </button>
+</mat-toolbar>
+
+<main class="content">
+  <h1>Welcome!</h1>
+  <p>You are logged in as a <strong>Customer</strong>.</p>
+  <div class="actions">
+    <button mat-flat-button (click)="goToOrders()">
+      <mat-icon>shopping_cart</mat-icon>
+      My Orders
+    </button>
+    <button mat-flat-button (click)="goToProducts()">
+      <mat-icon>inventory_2</mat-icon>
+      Browse Products
+    </button>
+  </div>
+</main>

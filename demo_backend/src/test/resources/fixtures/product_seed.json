@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Laptop",
+    "description": "A powerful laptop",
+    "price": 1200.00,
+    "stock": 10
+  },
+  {
+    "name": "Mouse",
+    "description": "A wireless mouse",
+    "price": 25.00,
+    "stock": 50
+  }
+]
