@@ -1,10 +1,6 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
+  ChangeDetectionStrategy, Component, computed,
+  inject, OnInit, signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -22,7 +18,6 @@ interface CalendarDay {
 
 @Component({
   selector: 'app-delivery-calendar',
-  standalone: true,
   imports: [DatePipe],
   templateUrl: './delivery-calendar.component.html',
   styleUrl: './delivery-calendar.component.scss',
@@ -51,7 +46,6 @@ export class DeliveryCalendarComponent implements OnInit {
     const firstDay    = new Date(year, month, 1);
     const startOffset = (firstDay.getDay() + 6) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     const days: CalendarDay[] = [];
     const todayStr = this.today.toDateString();
 
@@ -82,6 +76,12 @@ export class DeliveryCalendarComponent implements OnInit {
     });
   }
 
+  // Helper avoids optional-chain type error in template
+  protected isSelectedDay(day: CalendarDay): boolean {
+    const sel = this.selectedDay();
+    return sel !== null && sel.date.toDateString() === day.date.toDateString();
+  }
+
   protected prevMonth(): void {
     const v = this.viewDate();
     this.viewDate.set(new Date(v.getFullYear(), v.getMonth() - 1, 1));
@@ -96,8 +96,7 @@ export class DeliveryCalendarComponent implements OnInit {
 
   protected selectDay(day: CalendarDay): void {
     if (!day.isCurrentMonth || day.orders.length === 0) return;
-    const isSame = this.selectedDay()?.date.toDateString() === day.date.toDateString();
-    this.selectedDay.set(isSame ? null : day);
+    this.selectedDay.set(this.isSelectedDay(day) ? null : day);
   }
 
   protected dotClass(status: string): string {

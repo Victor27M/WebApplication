@@ -30,13 +30,10 @@ export class PersonListPageComponent {
   protected readonly isLoading        = this.store.isLoading;
   protected readonly displayedColumns = ['name', 'age', 'email', 'role', 'actions'];
 
-  constructor() {
-    this.store.load();
-  }
+  constructor() { this.store.load(); }
 
   protected openCreateDialog(): void {
     if (this.isLoading()) return;
-
     this.dialog
       .open<PersonFormDialogComponent, PersonFormDialogData, PersonFormDialogResult>(
         PersonFormDialogComponent,
@@ -47,11 +44,8 @@ export class PersonListPageComponent {
       .subscribe((result) => {
         if (!result) return;
         const dto: CreatePersonDto = {
-          name: result.name,
-          email: result.email,
-          password: result.password ?? '',
-          age: result.age,
-          role: result.role,
+          name: result.name, email: result.email,
+          password: result.password ?? '', age: result.age, role: result.role,
         };
         this.store.create(dto);
       });
@@ -59,15 +53,12 @@ export class PersonListPageComponent {
 
   protected openEditDialog(person: Person): void {
     if (this.isLoading()) return;
-
     this.dialog
       .open<PersonFormDialogComponent, PersonFormDialogData, PersonFormDialogResult>(
         PersonFormDialogComponent,
         {
           data: {
-            title: 'Edit Person',
-            submitLabel: 'Save',
-            showPasswordField: false,
+            title: 'Edit Person', submitLabel: 'Save', showPasswordField: false,
             initialValue: person,
           },
         },
@@ -77,26 +68,21 @@ export class PersonListPageComponent {
       .subscribe((result) => {
         if (!result) return;
         const dto: UpdatePersonDto = {
-          name: result.name,
-          email: result.email,
-          age: result.age,
-          role: result.role,
+          name: result.name, email: result.email, age: result.age,
+          role: result.role, password: person.password, // kept from existing, store overwrites anyway
         };
-        this.store.update({ id: person.id, dto });
+        this.store.update(person.id, dto);   // ← two separate args
       });
   }
 
   protected openDeleteDialog(person: Person): void {
     if (this.isLoading()) return;
-
     this.dialog
-      .open(ConfirmDeleteDialogComponent, {
-        data: { name: person.name },
-      })
+      .open(ConfirmDeleteDialogComponent, { data: { name: person.name } })
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
-        if (confirmed) this.store.delete(person.id);
+        if (confirmed) this.store.remove(person.id);   // ← remove not delete
       });
   }
 }

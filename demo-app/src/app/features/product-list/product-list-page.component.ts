@@ -1,10 +1,6 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
+  ChangeDetectionStrategy, Component, computed,
+  DestroyRef, inject, signal,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -52,13 +48,11 @@ export class ProductListPageComponent {
 
   protected readonly filteredProducts = computed(() => {
     let list = this.store.products();
-    const name  = this.filterName().toLowerCase().trim();
-    const max   = this.filterMaxPrice();
-    const sort  = this.sortOption();
-
+    const name = this.filterName().toLowerCase().trim();
+    const max  = this.filterMaxPrice();
+    const sort = this.sortOption();
     if (name) list = list.filter(p => p.name.toLowerCase().includes(name));
     if (max !== null) list = list.filter(p => p.price <= max);
-
     return [...list].sort((a, b) => {
       switch (sort) {
         case 'name-asc':   return a.name.localeCompare(b.name);
@@ -69,13 +63,10 @@ export class ProductListPageComponent {
     });
   });
 
-  constructor() {
-    this.store.load();
-  }
+  constructor() { this.store.load(); }
 
   protected openCreateDialog(): void {
     if (this.isLoading()) return;
-
     this.dialog
       .open<ProductFormDialogComponent, ProductFormDialogData, ProductFormDialogResult>(
         ProductFormDialogComponent,
@@ -86,10 +77,8 @@ export class ProductListPageComponent {
       .subscribe((result) => {
         if (!result) return;
         const dto: CreateProductDto = {
-          name: result.name,
-          description: result.description,
-          price: result.price,
-          stock: result.stock,
+          name: result.name, description: result.description,
+          price: result.price, stock: result.stock,
         };
         this.store.create(dto);
       });
@@ -97,41 +86,31 @@ export class ProductListPageComponent {
 
   protected openEditDialog(product: Product): void {
     if (this.isLoading()) return;
-
     this.dialog
       .open<ProductFormDialogComponent, ProductFormDialogData, ProductFormDialogResult>(
         ProductFormDialogComponent,
-        {
-          data: {
-            title: 'Edit Product',
-            submitLabel: 'Save',
-            initialValue: product,
-          },
-        },
+        { data: { title: 'Edit Product', submitLabel: 'Save', initialValue: product } },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (!result) return;
         const dto: UpdateProductDto = {
-          name: result.name,
-          description: result.description,
-          price: result.price,
-          stock: result.stock,
+          name: result.name, description: result.description,
+          price: result.price, stock: result.stock,
         };
-        this.store.update({ id: product.id, dto });
+        this.store.update(product.id, dto);   // ← two separate args
       });
   }
 
   protected openDeleteDialog(product: Product): void {
     if (this.isLoading()) return;
-
     this.dialog
       .open(ConfirmDeleteDialogComponent, { data: { name: product.name } })
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
-        if (confirmed) this.store.delete(product.id);
+        if (confirmed) this.store.remove(product.id);   // ← remove not delete
       });
   }
 }

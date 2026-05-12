@@ -5,6 +5,13 @@ export type OrderStatus =
   | 'DELIVERED'
   | 'CANCELLED';
 
+export type PaymentStatus =
+  | 'UNPAID'
+  | 'PROCESSING'
+  | 'PAID'
+  | 'FAILED'
+  | 'REFUNDED';
+
 export interface OrderItem {
   id: string;
   product: {
@@ -26,6 +33,7 @@ export interface Order {
   destination: string;
   orderDate: string;
   status: OrderStatus;
+  paymentStatus: PaymentStatus;
 }
 
 export interface OrderItemDto {

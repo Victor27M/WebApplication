@@ -2,11 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'login',
-  },
+  { path: '', pathMatch: 'full', redirectTo: 'login' },
+
   {
     path: 'login',
     loadComponent: () =>
@@ -19,10 +16,21 @@ export const routes: Routes = [
         (m) => m.ForgotPasswordPageComponent,
       ),
   },
+
+  // ── Admin area — wrapped in ShellComponent (sidebar + main) ───────────────
   {
     path: 'admin',
+    loadComponent: () =>
+      import('./features/shell/shell.component').then((m) => m.ShellComponent),
     canActivateChild: [authGuard],
     children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard-page.component').then(
+            (m) => m.DashboardPageComponent,
+          ),
+      },
       {
         path: 'people',
         loadComponent: () =>
@@ -44,15 +52,17 @@ export const routes: Routes = [
             (m) => m.OrderListPageComponent,
           ),
       },
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'people',
-      },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },
+
+  // ── Customer area — wrapped in CustomerShellComponent ─────────────────────
   {
     path: 'customer',
+    loadComponent: () =>
+      import('./features/customer-shell/customer-shell.component').then(
+        (m) => m.CustomerShellComponent,
+      ),
     canActivateChild: [authGuard],
     children: [
       {
@@ -78,6 +88,7 @@ export const routes: Routes = [
       },
     ],
   },
+
   {
     path: 'error',
     loadComponent: () =>
@@ -85,8 +96,5 @@ export const routes: Routes = [
         (m) => m.NotFoundPageComponent,
       ),
   },
-  {
-    path: '**',
-    redirectTo: '/error',
-  },
+  { path: '**', redirectTo: '/error' },
 ];

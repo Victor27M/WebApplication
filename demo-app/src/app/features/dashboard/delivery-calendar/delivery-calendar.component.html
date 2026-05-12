@@ -19,7 +19,7 @@
         [class.other-month]="!day.isCurrentMonth"
         [class.today]="day.isToday"
         [class.has-orders]="day.orders.length > 0 && day.isCurrentMonth"
-        [class.selected]="selectedDay()?.date.toDateString() === day.date.toDateString()"
+        [class.selected]="isSelectedDay(day)"
         (click)="selectDay(day)"
       >
         <span class="day-num">{{ day.dayNum }}</span>

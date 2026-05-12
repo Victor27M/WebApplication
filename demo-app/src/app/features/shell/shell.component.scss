@@ -1,9 +1,5 @@
-:host {
-  display: block;
-  height: 100vh;
-}
+:host { display: block; height: 100vh; }
 
-// ── Shell container ──────────────────────────────────────────────────────────
 .shell {
   display: flex;
   height: 100vh;
@@ -11,25 +7,21 @@
   overflow: hidden;
 }
 
-// ── Sidebar ──────────────────────────────────────────────────────────────────
+// ── Sidebar ────────────────────────────────────────────────────────────────
 .sidebar {
   width: var(--obs-sidebar-w-collapsed);
-  background: #0f0f0f;
+  background: var(--obs-surface);
   border-right: 0.5px solid var(--obs-border);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   padding: 12px 0;
   flex-shrink: 0;
   transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 
-  &:hover {
-    width: var(--obs-sidebar-w-expanded);
-  }
+  &:hover { width: var(--obs-sidebar-w-expanded); }
 }
 
-// ── Logo ──────────────────────────────────────────────────────────────────────
 .sidebar-logo {
   display: flex;
   align-items: center;
@@ -38,7 +30,7 @@
   height: 36px;
   background: var(--obs-text-1);
   border-radius: 10px;
-  margin: 4px auto 16px;
+  margin: 4px auto 20px;
   flex-shrink: 0;
 
   mat-icon {
@@ -49,7 +41,6 @@
   }
 }
 
-// ── Nav ───────────────────────────────────────────────────────────────────────
 .sidebar-nav {
   flex: 1;
   display: flex;
@@ -59,15 +50,11 @@
 }
 
 .sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
   padding: 8px 8px 0;
   border-top: 0.5px solid var(--obs-border);
   margin-top: 8px;
 }
 
-// ── Nav item ──────────────────────────────────────────────────────────────────
 .nav-item {
   display: flex;
   align-items: center;
@@ -95,8 +82,8 @@
   }
 
   &.logout:hover {
-    background: #2a0808;
-    color: #f87171;
+    background: var(--status-failed-bg);
+    color: var(--status-failed-fg);
   }
 }
 
@@ -114,58 +101,20 @@
   opacity: 0;
   transition: opacity 0.15s 0.05s;
 
-  .sidebar:hover & {
-    opacity: 1;
-  }
+  .sidebar:hover & { opacity: 1; }
 }
 
-// ── Main content ──────────────────────────────────────────────────────────────
+// ── Main content area ──────────────────────────────────────────────────────
 .main-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--obs-bg);
 
-  // Custom scrollbar
   scrollbar-width: thin;
   scrollbar-color: var(--obs-surface-3) transparent;
 
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb {
-    background: var(--obs-surface-3);
-    border-radius: 99px;
-  }
-}
-
-// ── Light mode overrides (applied via [class.light]) ──────────────────────────
-.shell.light {
-  background: #f5f5f5;
-
-  .sidebar {
-    background: #ffffff;
-    border-right-color: #e5e5e5;
-  }
-
-  .sidebar-logo {
-    background: #080808;
-  }
-
-  .nav-item {
-    color: #999;
-
-    &:hover {
-      background: #f0f0f0;
-      color: #111;
-    }
-
-    &.active {
-      background: #ebebeb;
-      color: #111;
-    }
-  }
-
-  .main-content {
-    background: #f5f5f5;
-  }
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track  { background: transparent; }
+  &::-webkit-scrollbar-thumb  { background: var(--obs-surface-3); border-radius: 99px; }
 }

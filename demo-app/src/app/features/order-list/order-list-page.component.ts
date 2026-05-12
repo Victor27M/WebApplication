@@ -1,10 +1,6 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
+  ChangeDetectionStrategy, Component, DestroyRef,
+  inject, OnInit, signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -88,7 +84,7 @@ export class OrderListPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.store.load();   // reload list so paymentStatus badge updates
+          this.store.load();
           this.snackBar.open('Payment successful ✓', 'Close', { duration: 3000 });
         },
         error: () => this.snackBar.open('Payment failed', 'Close', { duration: 3000 }),
@@ -100,7 +96,7 @@ export class OrderListPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.store.load();   // reload list so paymentStatus badge updates
+          this.store.load();
           this.snackBar.open('Refund issued ✓', 'Close', { duration: 3000 });
         },
         error: () => this.snackBar.open('Refund failed', 'Close', { duration: 3000 }),
@@ -131,7 +127,23 @@ export class OrderListPageComponent implements OnInit {
     this.dialog
       .open<OrderFormDialogComponent, OrderFormDialogData, OrderFormDialogResult>(
         OrderFormDialogComponent,
-        { data: { title: 'Edit Order', submitLabel: 'Save', persons: this.availablePersons(), products: this.availableProducts(), initialValue: order } },
+        {
+          data: {
+            title: 'Edit Order', submitLabel: 'Save',
+            persons: this.availablePersons(),
+            products: this.availableProducts(),
+            // Transform Order → OrderFormInitialValue (dialog expects personId not person object)
+            initialValue: {
+              personId:    order.person?.id ?? '',
+              items:       (order.items ?? []).map(i => ({
+                productId: i.product?.id ?? '',
+                quantity:  i.quantity,
+              })),
+              destination: order.destination ?? '',
+              status:      order.status,
+            },
+          },
+        },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
