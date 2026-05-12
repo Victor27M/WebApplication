@@ -1,34 +1,11 @@
-<mat-toolbar color="primary" class="page-toolbar">
-  <span class="toolbar-title">Order Manager</span>
-  <span class="toolbar-spacer" aria-hidden="true"></span>
-  <button mat-button type="button" (click)="goToPeople()">
-    <mat-icon aria-hidden="true">people</mat-icon>
-    People
-  </button>
-  <button mat-button type="button" (click)="goToProducts()">
-    <mat-icon aria-hidden="true">inventory_2</mat-icon>
-    Products
-  </button>
-  <button mat-button type="button" (click)="logout()" aria-label="Sign out">
-    <mat-icon aria-hidden="true">logout</mat-icon>
-    Logout
-  </button>
-</mat-toolbar>
-
-<main class="content">
+<div class="page-content">
   <header class="page-header">
     <div>
-      <h1 class="page-title">Manage Orders</h1>
-      <p class="page-subtitle">View, create, edit, and delete orders.</p>
+      <h1 class="page-title">Orders</h1>
+      <p class="page-subtitle">View, create, edit and manage orders.</p>
     </div>
-    <button
-      mat-flat-button
-      (click)="openCreateDialog()"
-      aria-label="Add new order"
-      [disabled]="isLoading()"
-    >
-      <mat-icon>add</mat-icon>
-      New Order
+    <button mat-flat-button (click)="openCreateDialog()" [disabled]="isLoading()">
+      <mat-icon>add</mat-icon> New Order
     </button>
   </header>
 
@@ -37,23 +14,17 @@
   }
 
   @if (hasError()) {
-    <div class="error-alert" role="alert" aria-live="assertive">
-      <mat-icon aria-hidden="true">error_outline</mat-icon>
-      An error occurred while processing your request. Please try again.
+    <div class="error-alert" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      An error occurred. Please try again.
     </div>
   }
 
-  <div
-    class="table-container"
-    role="region"
-    aria-label="Order list"
-    [attr.aria-busy]="isLoading()"
-    [class.is-busy]="isLoading()"
-  >
+  <div class="table-container" [class.is-busy]="isLoading()">
     <table mat-table [dataSource]="orders()" aria-label="Orders table">
 
       <ng-container matColumnDef="person">
-        <th mat-header-cell *matHeaderCellDef scope="col">Person</th>
+        <th mat-header-cell *matHeaderCellDef>Person</th>
         <td mat-cell *matCellDef="let order">
           <div class="person-cell">
             <span class="person-name">{{ getPersonName(order) }}</span>
@@ -63,53 +34,64 @@
       </ng-container>
 
       <ng-container matColumnDef="products">
-        <th mat-header-cell *matHeaderCellDef scope="col">Products</th>
+        <th mat-header-cell *matHeaderCellDef>Products</th>
         <td mat-cell *matCellDef="let order">
           <div class="products-cell">
-            @for (item of (order.items ?? []); track $index) {
-              <span class="product-chip">{{ item.product.name }} x{{ item.quantity }}</span>
+            @for (item of (order.items ?? []); track item.product?.id) {
+              <span class="product-chip">{{ item.product?.name }} ×{{ item.quantity }}</span>
             }
           </div>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="destination">
-        <th mat-header-cell *matHeaderCellDef scope="col">Destination</th>
-        <td mat-cell *matCellDef="let order">{{ order.destination }}</td>
+        <th mat-header-cell *matHeaderCellDef>Destination</th>
+        <td mat-cell *matCellDef="let order">{{ order.destination ?? '—' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef scope="col">Status</th>
+        <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let order">
-          <span [class]="'status-badge status-' + order.status.toLowerCase()">
-            {{ order.status }}
-          </span>
+          <span [class]="statusClass(order.status)">{{ order.status }}</span>
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="orderDate">
-        <th mat-header-cell *matHeaderCellDef scope="col">Date</th>
-        <td mat-cell *matCellDef="let order">{{ formatDate(order.orderDate) }}</td>
+      <ng-container matColumnDef="paymentStatus">
+        <th mat-header-cell *matHeaderCellDef>Payment</th>
+        <td mat-cell *matCellDef="let order">
+          <span [class]="statusClass(order.paymentStatus)">{{ order.paymentStatus }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let order">{{ order.orderDate | date:'dd MMM yyyy' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef scope="col">Actions</th>
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let order">
-          <button
-            mat-icon-button
-            (click)="openEditDialog(order)"
-            [attr.aria-label]="'Edit order for ' + getPersonName(order)"
-            [disabled]="isLoading()"
-          >
+          <!-- Pay button — visible for UNPAID or FAILED -->
+          @if (canPay(order)) {
+            <button mat-icon-button (click)="pay(order)"
+                    [attr.aria-label]="'Pay order'" matTooltip="Process payment"
+                    [disabled]="isLoading()">
+              <mat-icon class="pay-icon">payment</mat-icon>
+            </button>
+          }
+          <!-- Refund button — visible for PAID -->
+          @if (canRefund(order)) {
+            <button mat-icon-button (click)="refund(order)"
+                    [attr.aria-label]="'Refund order'" matTooltip="Issue refund"
+                    [disabled]="isLoading()">
+              <mat-icon class="refund-icon">currency_exchange</mat-icon>
+            </button>
+          }
+          <button mat-icon-button (click)="openEditDialog(order)" [disabled]="isLoading()">
             <mat-icon>edit</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            (click)="deleteOrder(order)"
-            [attr.aria-label]="'Delete order for ' + getPersonName(order)"
-            class="delete-btn"
-            [disabled]="isLoading()"
-          >
+          <button mat-icon-button (click)="openDeleteDialog(order)"
+                  class="delete-btn" [disabled]="isLoading()">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -117,12 +99,11 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
       <tr class="mat-mdc-row" *matNoDataRow>
         <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
-          No orders found. Click "New Order" to add one.
+          No orders found.
         </td>
       </tr>
     </table>
   </div>
-</main>
+</div>

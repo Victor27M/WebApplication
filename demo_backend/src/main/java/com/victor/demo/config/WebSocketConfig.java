@@ -10,9 +10,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // Messages sent to /topic/... are broadcast to all subscribers
+        // /topic/... channels are broadcast to all subscribers
         registry.enableSimpleBroker("/topic");
-        // Messages sent from client start with /app
+        // messages FROM the client are prefixed with /app
         registry.setApplicationDestinationPrefixes("/app");
     }
 

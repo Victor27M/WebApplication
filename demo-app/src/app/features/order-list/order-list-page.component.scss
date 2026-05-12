@@ -1,5 +1,24 @@
-.content {
-  max-width: 1100px;
-  margin: 32px auto;
-  padding: 0 16px;
+.page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px;
 }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.page-title    { margin: 0 0 4px; font-size: 1.25rem; font-weight: 500; color: var(--obs-text-1); }
+.page-subtitle { margin: 0; font-size: 13px; color: var(--obs-text-3); }
+
+.person-cell   { display: flex; flex-direction: column; gap: 2px; }
+.person-name   { font-size: 13px; color: var(--obs-text-1); }
+.person-email  { font-size: 11px; color: var(--obs-text-3); }
+
+.pay-icon    { color: #16a34a !important; }
+.refund-icon { color: #818cf8 !important; }
