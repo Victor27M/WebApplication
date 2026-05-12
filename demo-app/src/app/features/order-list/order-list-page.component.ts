@@ -22,7 +22,7 @@ import {
 } from '../../components/order-form-dialog/order-form-dialog.component';
 import { Person } from '../../models/person.model';
 import { Product } from '../../models/product.model';
-import { CreateOrderDto, Order, UpdateOrderDto } from '../../models/order.model';
+import { CreateOrderDto, Order, OrderItem, UpdateOrderDto } from '../../models/order.model';
 import { PersonService } from '../../services/person.service';
 import { ProductService } from '../../services/product.service';
 import { PaymentService } from '../../services/payment.service';
@@ -30,15 +30,9 @@ import { OrderListStore } from './order-list.store';
 
 @Component({
   selector: 'app-order-list-page',
-  standalone: true,
   imports: [
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatTooltipModule,
-    DatePipe,
+    MatTableModule, MatButtonModule, MatIconModule,
+    MatDialogModule, MatSnackBarModule, MatTooltipModule, DatePipe,
   ],
   templateUrl: './order-list-page.component.html',
   styleUrl: './order-list-page.component.scss',
@@ -70,6 +64,10 @@ export class OrderListPageComponent implements OnInit {
     this.productService.getAll().subscribe(p => this.availableProducts.set(p));
   }
 
+  protected getItems(order: Order): OrderItem[] {
+    return order.items ?? [];
+  }
+
   protected getPersonName(order: Order): string  { return order.person?.name  ?? '—'; }
   protected getPersonEmail(order: Order): string { return order.person?.email ?? '';  }
 
@@ -89,10 +87,8 @@ export class OrderListPageComponent implements OnInit {
     this.paymentService.pay(order.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (updated) => {
-          this.store.orders.update(list =>
-            list.map(o => o.id === updated.id ? { ...o, paymentStatus: updated.paymentStatus } : o),
-          );
+        next: () => {
+          this.store.load();   // reload list so paymentStatus badge updates
           this.snackBar.open('Payment successful ✓', 'Close', { duration: 3000 });
         },
         error: () => this.snackBar.open('Payment failed', 'Close', { duration: 3000 }),
@@ -103,10 +99,8 @@ export class OrderListPageComponent implements OnInit {
     this.paymentService.refund(order.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (updated) => {
-          this.store.orders.update(list =>
-            list.map(o => o.id === updated.id ? { ...o, paymentStatus: updated.paymentStatus } : o),
-          );
+        next: () => {
+          this.store.load();   // reload list so paymentStatus badge updates
           this.snackBar.open('Refund issued ✓', 'Close', { duration: 3000 });
         },
         error: () => this.snackBar.open('Refund failed', 'Close', { duration: 3000 }),
@@ -118,24 +112,15 @@ export class OrderListPageComponent implements OnInit {
     this.dialog
       .open<OrderFormDialogComponent, OrderFormDialogData, OrderFormDialogResult>(
         OrderFormDialogComponent,
-        {
-          data: {
-            title: 'Create Order',
-            submitLabel: 'Create',
-            persons: this.availablePersons(),
-            products: this.availableProducts(),
-          },
-        },
+        { data: { title: 'Create Order', submitLabel: 'Create', persons: this.availablePersons(), products: this.availableProducts() } },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (!result) return;
         const dto: CreateOrderDto = {
-          personId:    result.personId,
-          items:       result.items,
-          destination: result.destination,
-          status:      result.status,
+          personId: result.personId, items: result.items,
+          destination: result.destination, status: result.status,
         };
         this.store.create(dto);
       });
@@ -146,25 +131,15 @@ export class OrderListPageComponent implements OnInit {
     this.dialog
       .open<OrderFormDialogComponent, OrderFormDialogData, OrderFormDialogResult>(
         OrderFormDialogComponent,
-        {
-          data: {
-            title: 'Edit Order',
-            submitLabel: 'Save',
-            persons: this.availablePersons(),
-            products: this.availableProducts(),
-            initialValue: order,
-          },
-        },
+        { data: { title: 'Edit Order', submitLabel: 'Save', persons: this.availablePersons(), products: this.availableProducts(), initialValue: order } },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (!result) return;
         const dto: UpdateOrderDto = {
-          personId:    result.personId,
-          items:       result.items,
-          destination: result.destination,
-          status:      result.status,
+          personId: result.personId, items: result.items,
+          destination: result.destination, status: result.status,
         };
         this.store.update(order.id, dto);
       });
@@ -178,8 +153,6 @@ export class OrderListPageComponent implements OnInit {
       })
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((confirmed) => {
-        if (confirmed) this.store.remove(order.id);
-      });
+      .subscribe((confirmed) => { if (confirmed) this.store.remove(order.id); });
   }
 }

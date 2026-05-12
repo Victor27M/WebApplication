@@ -27,7 +27,7 @@
         <th mat-header-cell *matHeaderCellDef>Products</th>
         <td mat-cell *matCellDef="let order">
           <div class="products-cell">
-            @for (item of (order.items ?? []); track item.product?.id) {
+            @for (item of getItems(order); track item.product?.id) {
               <span class="product-chip">{{ item.product?.name }} ×{{ item.quantity }}</span>
             }
           </div>
@@ -62,7 +62,7 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       <tr class="mat-mdc-row" *matNoDataRow>
         <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
-          You have no orders yet. Click "New Order" to place one.
+          No orders yet. Click "New Order" to place one.
         </td>
       </tr>
     </table>

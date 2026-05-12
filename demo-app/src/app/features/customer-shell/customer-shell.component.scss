@@ -1,0 +1,124 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.shell {
+  display: flex;
+  height: 100vh;
+  background: var(--obs-bg);
+  overflow: hidden;
+}
+
+// ── Sidebar (identical structure to admin, colors come from .theme-light) ───
+.sidebar {
+  width: var(--obs-sidebar-w-collapsed);
+  background: var(--obs-surface);
+  border-right: 0.5px solid var(--obs-border);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+  flex-shrink: 0;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  &:hover { width: var(--obs-sidebar-w-expanded); }
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--obs-text-1);
+  border-radius: 10px;
+  margin: 4px auto 16px;
+  flex-shrink: 0;
+
+  mat-icon {
+    color: var(--obs-bg);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px;
+}
+
+.sidebar-footer {
+  padding: 8px 8px 0;
+  border-top: 0.5px solid var(--obs-border);
+  margin-top: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--obs-radius-sm);
+  color: var(--obs-text-3);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  white-space: nowrap;
+  width: 100%;
+  transition: background 0.13s, color 0.13s;
+  font-family: inherit;
+
+  &:hover {
+    background: var(--obs-surface-2);
+    color: var(--obs-text-1);
+  }
+
+  &.active {
+    background: var(--obs-surface-3);
+    color: var(--obs-text-1);
+  }
+
+  &.logout:hover {
+    background: var(--status-failed-bg);
+    color: var(--status-failed-fg);
+  }
+}
+
+.nav-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.nav-label {
+  font-size: 13px;
+  font-weight: 400;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.15s 0.05s;
+
+  .sidebar:hover & { opacity: 1; }
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--obs-bg);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--obs-surface-3) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--obs-surface-3);
+    border-radius: 99px;
+  }
+}

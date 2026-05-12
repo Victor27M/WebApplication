@@ -1,0 +1,45 @@
+<div class="shell theme-light">
+
+  <aside class="sidebar" role="navigation" aria-label="Customer navigation">
+
+    <div class="sidebar-logo" aria-hidden="true">
+      <mat-icon>shopping_bag</mat-icon>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/customer' }"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          [attr.aria-label]="item.label"
+        >
+          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <button
+        class="nav-item logout"
+        (click)="logout()"
+        matTooltip="Log out"
+        matTooltipPosition="right"
+        aria-label="Log out"
+      >
+        <mat-icon class="nav-icon">logout</mat-icon>
+        <span class="nav-label">Log out</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <main class="main-content" role="main">
+    <router-outlet />
+  </main>
+
+</div>

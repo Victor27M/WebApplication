@@ -37,7 +37,7 @@
         <th mat-header-cell *matHeaderCellDef>Products</th>
         <td mat-cell *matCellDef="let order">
           <div class="products-cell">
-            @for (item of (order.items ?? []); track item.product?.id) {
+            @for (item of getItems(order); track item.product?.id) {
               <span class="product-chip">{{ item.product?.name }} ×{{ item.quantity }}</span>
             }
           </div>
@@ -71,19 +71,15 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let order">
-          <!-- Pay button — visible for UNPAID or FAILED -->
           @if (canPay(order)) {
             <button mat-icon-button (click)="pay(order)"
-              [attr.aria-label]="'Pay order'" matTooltip="Process payment"
-              [disabled]="isLoading()">
+                    matTooltip="Process payment" [disabled]="isLoading()">
               <mat-icon class="pay-icon">payment</mat-icon>
             </button>
           }
-          <!-- Refund button — visible for PAID -->
           @if (canRefund(order)) {
             <button mat-icon-button (click)="refund(order)"
-              [attr.aria-label]="'Refund order'" matTooltip="Issue refund"
-              [disabled]="isLoading()">
+                    matTooltip="Issue refund" [disabled]="isLoading()">
               <mat-icon class="refund-icon">currency_exchange</mat-icon>
             </button>
           }
@@ -91,7 +87,7 @@
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button (click)="openDeleteDialog(order)"
-            class="delete-btn" [disabled]="isLoading()">
+                  class="delete-btn" [disabled]="isLoading()">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -100,9 +96,7 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       <tr class="mat-mdc-row" *matNoDataRow>
-        <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
-          No orders found.
-        </td>
+        <td [attr.colspan]="displayedColumns.length" class="no-data-cell">No orders found.</td>
       </tr>
     </table>
   </div>

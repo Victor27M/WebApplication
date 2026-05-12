@@ -10,8 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
-import { CreateOrderDto, Order } from '../../models/order.model';
+import { CreateOrderDto, Order, OrderItem } from '../../models/order.model';
 import { Product } from '../../models/product.model';
 import { OrderService } from '../../services/order.service';
 import { ProductService } from '../../services/product.service';
@@ -24,7 +23,6 @@ import {
 
 @Component({
   selector: 'app-customer-orders-page',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatTableModule, MatDialogModule, DatePipe],
   templateUrl: './customer-orders-page.component.html',
   styleUrl: './customer-orders-page.component.scss',
@@ -34,14 +32,16 @@ export class CustomerOrdersPageComponent implements OnInit {
   private readonly orderService   = inject(OrderService);
   private readonly productService = inject(ProductService);
   private readonly loginStore     = inject(LoginStore);
-  private readonly router         = inject(Router);
   private readonly dialog         = inject(MatDialog);
 
   protected readonly orders    = signal<Order[]>([]);
   protected readonly products  = signal<Product[]>([]);
   protected readonly isLoading = signal(false);
   protected readonly hasError  = signal(false);
-  protected readonly displayedColumns = ['products', 'destination', 'status', 'paymentStatus', 'orderDate'];
+
+  protected readonly displayedColumns = [
+    'products', 'destination', 'status', 'paymentStatus', 'orderDate',
+  ];
 
   ngOnInit(): void {
     const personId = this.loginStore.personId();
@@ -53,6 +53,11 @@ export class CustomerOrdersPageComponent implements OnInit {
       error: () => { this.hasError.set(true); this.isLoading.set(false); },
     });
     this.productService.getAll().subscribe({ next: (data) => this.products.set(data) });
+  }
+
+  // Explicit helper so template gets a clean OrderItem[] — avoids type-checker confusion
+  protected getItems(order: Order): OrderItem[] {
+    return order.items ?? [];
   }
 
   protected statusClass(status: string): string {
@@ -70,7 +75,6 @@ export class CustomerOrdersPageComponent implements OnInit {
           data: {
             title: 'New Order',
             submitLabel: 'Place Order',
-            showStatusField: false,
             persons: [{ id: personId, name: 'Me', email: '', age: 0, password: '', role: 'CUSTOMER' }],
             products: this.products(),
           },
