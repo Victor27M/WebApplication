@@ -1,7 +1,7 @@
 <div class="map-card">
   <header class="card-header">
     <h2 class="card-title">Order map</h2>
-    <div class="map-legend" aria-label="Map legend">
+    <div class="map-legend">
       <div class="legend-item"><div class="legend-dot delivered"></div>Delivered</div>
       <div class="legend-item"><div class="legend-dot shipped"></div>Shipped</div>
       <div class="legend-item"><div class="legend-dot pending"></div>Pending</div>
@@ -10,14 +10,10 @@
 
   <div #mapContainer class="map-canvas"
        [class.is-loading]="isLoading()"
-       [class.has-error]="hasError()"
-       role="region"
-       aria-label="Order destinations map">
+       role="region" aria-label="Order destinations map">
   </div>
 
   @if (hasError()) {
-    <div class="map-error" role="alert">
-      Couldn't load map data. Is the OpenRouteService API key set?
-    </div>
+    <p class="map-error">Could not load map data.</p>
   }
 </div>

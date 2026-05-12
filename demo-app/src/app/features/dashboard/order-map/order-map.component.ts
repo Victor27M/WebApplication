@@ -21,7 +21,6 @@ interface MapPoint {
   statuses: Record<string, number>;
 }
 
-// Status color map — matches the obsidian status badge palette
 const STATUS_COLOURS: Record<string, string> = {
   DELIVERED: '#16a34a',
   SHIPPED:   '#a78bfa',
@@ -32,7 +31,6 @@ const STATUS_COLOURS: Record<string, string> = {
 
 @Component({
   selector: 'app-order-map',
-  standalone: true,
   templateUrl: './order-map.component.html',
   styleUrl: './order-map.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,17 +56,15 @@ export class OrderMapComponent implements AfterViewInit, OnDestroy {
 
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [45.9432, 24.9668], // centred on Romania
+      center: [45.9432, 24.9668],
       zoom: 7,
       zoomControl: false,
       attributionControl: false,
     });
 
-    // Dark map tiles to match the obsidian theme
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      { maxZoom: 19 },
-    ).addTo(this.map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+    }).addTo(this.map);
 
     L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
   }
@@ -90,53 +86,42 @@ export class OrderMapComponent implements AfterViewInit, OnDestroy {
     if (!this.map) return;
 
     for (const point of points) {
-      const dominantStatus = this.dominantStatus(point.statuses);
-      const colour = STATUS_COLOURS[dominantStatus] ?? '#888';
+      const dominant = this.dominantStatus(point.statuses);
+      const colour   = STATUS_COLOURS[dominant] ?? '#888';
 
-      const icon = L.divIcon({
-        className: 'order-pin',
-        html: `
-          <div class="pin-ring" style="background:${colour}"></div>
-          <div class="pin-dot"  style="background:${colour}"></div>
-        `,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
-      });
+      // Fixed 8px radius — circleMarker is always in screen pixels
+      // so it stays the same size regardless of zoom level
+      const marker = L.circleMarker([point.lat, point.lng], {
+        radius:      8,
+        fillColor:   colour,
+        color:       'rgba(255,255,255,0.5)',
+        weight:      1.5,
+        opacity:     1,
+        fillOpacity: 0.85,
+      }).addTo(this.map!);
 
-      const marker = L.marker([point.lat, point.lng], { icon }).addTo(this.map);
+      const rows = Object.entries(point.statuses)
+        .sort((a, b) => b[1] - a[1])
+        .map(([s, c]) =>
+          `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#aaa;">
+            <span style="width:6px;height:6px;border-radius:50%;background:${STATUS_COLOURS[s] ?? '#888'};flex-shrink:0;"></span>
+            <span>${s}</span>
+            <span style="margin-left:auto;color:#fff;font-weight:500;">${c}</span>
+          </div>`)
+        .join('');
 
-      const tooltipHtml = `
-        <div class="pin-tooltip">
-          <div class="pin-tip-title">${point.destination}</div>
-          <div class="pin-tip-count">${point.count} order${point.count !== 1 ? 's' : ''}</div>
-          ${Object.entries(point.statuses)
-            .map(([status, count]) => `
-              <div class="pin-tip-row">
-                <span class="pin-tip-dot" style="background:${STATUS_COLOURS[status] ?? '#888'}"></span>
-                <span>${status}</span>
-                <span class="pin-tip-num">${count}</span>
-              </div>
-            `).join('')}
-        </div>
-      `;
-
-      marker.bindTooltip(tooltipHtml, {
-        direction: 'top',
-        offset: [0, -10],
-        className: 'obsidian-tooltip',
-      });
+      marker.bindTooltip(
+        `<div style="min-width:140px;display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:13px;font-weight:500;color:#fff;margin-bottom:2px;">${point.destination}</span>
+          <span style="font-size:11px;color:#888;margin-bottom:4px;">${point.count} orders</span>
+          ${rows}
+        </div>`,
+        { direction: 'top', offset: [0, -10], className: 'obsidian-tooltip' },
+      );
     }
   }
 
   private dominantStatus(statuses: Record<string, number>): string {
-    let max = '';
-    let maxVal = -1;
-    for (const [status, count] of Object.entries(statuses)) {
-      if (count > maxVal) {
-        maxVal = count;
-        max = status;
-      }
-    }
-    return max;
+    return Object.entries(statuses).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'PENDING';
   }
 }

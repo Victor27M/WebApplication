@@ -1,7 +1,4 @@
-:host {
-  display: block;
-  height: 100%;
-}
+:host { display: block; height: 100%; }
 
 .map-card {
   background: var(--obs-surface);
@@ -19,7 +16,6 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  gap: 12px;
 }
 
 .card-title {
@@ -29,15 +25,12 @@
   margin: 0;
 }
 
-// ── Legend (glassmorphic) ─────────────────────────────────────────────────────
 .map-legend {
   display: flex;
   gap: 10px;
   padding: 6px 10px;
   border-radius: 99px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.03);
   border: 0.5px solid var(--obs-border-2);
 }
 
@@ -50,137 +43,24 @@
 }
 
 .legend-dot {
-  width: 7px;
-  height: 7px;
+  width: 7px; height: 7px;
   border-radius: 50%;
-
-  &.delivered { background: var(--status-delivered-fg); }
-  &.shipped   { background: var(--status-shipped-fg); }
-  &.pending   { background: var(--status-pending-fg); }
+  &.delivered { background: #16a34a; }
+  &.shipped   { background: #a78bfa; }
+  &.pending   { background: #f59e0b; }
 }
 
-// ── Leaflet container ─────────────────────────────────────────────────────────
 .map-canvas {
   flex: 1;
   min-height: 280px;
   border-radius: var(--obs-radius-md);
   overflow: hidden;
   background: #0a0a0a;
-
-  &.is-loading {
-    opacity: 0.4;
-  }
+  &.is-loading { opacity: 0.4; }
 }
 
 .map-error {
   margin-top: 8px;
-  padding: 10px 12px;
-  background: #2a0808;
-  border: 0.5px solid #f87171;
-  border-radius: var(--obs-radius-sm);
-  color: #f87171;
   font-size: 12px;
-}
-
-// ── Custom Leaflet pin (uses inline HTML from divIcon) ────────────────────────
-:global(.order-pin) {
-  position: relative;
-}
-
-:global(.order-pin .pin-ring) {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  opacity: 0.25;
-  animation: pulse-ring 2s ease-out infinite;
-}
-
-:global(.order-pin .pin-dot) {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.5);
-}
-
-@keyframes pulse-ring {
-  0%   { transform: scale(0.8); opacity: 0.35; }
-  100% { transform: scale(2);   opacity: 0;    }
-}
-
-// ── Tooltip (glassmorphic) ────────────────────────────────────────────────────
-:global(.leaflet-tooltip.obsidian-tooltip) {
-  background: rgba(15, 15, 15, 0.92) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 0.5px solid var(--obs-border-2) !important;
-  border-radius: var(--obs-radius-md) !important;
-  padding: 10px 12px !important;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5) !important;
-  color: var(--obs-text-1) !important;
-  font-family: 'Roboto', sans-serif !important;
-}
-
-:global(.leaflet-tooltip.obsidian-tooltip::before) {
-  border-top-color: rgba(15, 15, 15, 0.92) !important;
-}
-
-:global(.pin-tooltip) {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 140px;
-}
-
-:global(.pin-tip-title) {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--obs-text-1);
-}
-
-:global(.pin-tip-count) {
-  font-size: 11px;
-  color: var(--obs-text-3);
-  margin-bottom: 4px;
-}
-
-:global(.pin-tip-row) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--obs-text-2);
-}
-
-:global(.pin-tip-dot) {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-:global(.pin-tip-num) {
-  margin-left: auto;
-  color: var(--obs-text-1);
-  font-weight: 500;
-}
-
-// ── Hide Leaflet's default UI we don't want ───────────────────────────────────
-:global(.leaflet-control-zoom) {
-  border: 0.5px solid var(--obs-border-2) !important;
-  border-radius: var(--obs-radius-sm) !important;
-  overflow: hidden;
-}
-
-:global(.leaflet-control-zoom a) {
-  background: var(--obs-surface) !important;
-  color: var(--obs-text-2) !important;
-  border: none !important;
-
-  &:hover {
-    background: var(--obs-surface-2) !important;
-    color: var(--obs-text-1) !important;
-  }
+  color: var(--status-failed-fg);
 }

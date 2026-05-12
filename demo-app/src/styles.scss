@@ -208,3 +208,35 @@ body {
 // ── Filters row ────────────────────────────────────────────────────────────
 .filters      { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .filter-field { flex: 1 1 180px; }
+
+
+/* Add this block at the bottom of src/styles.scss */
+
+.leaflet-tooltip.obsidian-tooltip {
+  background: rgba(15, 15, 15, 0.94) !important;
+  backdrop-filter: blur(10px);
+  border: 0.5px solid #2a2a2a !important;
+  border-radius: 14px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.5) !important;
+  color: #fff !important;
+  font-family: 'Roboto', sans-serif !important;
+  pointer-events: none;
+}
+
+.leaflet-tooltip.obsidian-tooltip::before {
+  border-top-color: rgba(15, 15, 15, 0.94) !important;
+}
+
+.leaflet-control-zoom {
+  border: 0.5px solid #2a2a2a !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+
+  a {
+    background: #111 !important;
+    color: #888 !important;
+    border: none !important;
+    &:hover { background: #161616 !important; color: #fff !important; }
+  }
+}
