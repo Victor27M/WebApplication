@@ -25,7 +25,8 @@
           </defs>
           @if (sparklineArea()) {
             <path [attr.d]="sparklineArea()" fill="url(#g-rev)"/>
-            <path [attr.d]="sparklinePath()" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <path [attr.d]="sparklinePath()" fill="none" stroke="#fff"
+                  stroke-width="1.5" stroke-linecap="round"/>
           }
         </svg>
       </div>
@@ -38,7 +39,7 @@
       <div class="kpi-spark" aria-hidden="true">
         <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
           <path d="M0 24 C10 22 20 18 30 16 C40 14 50 12 60 8 C68 5 74 4 80 3"
-            fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+                fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </div>
     </article>
@@ -46,11 +47,12 @@
     <article class="kpi-card">
       <p class="kpi-label">Avg. order value</p>
       <p class="kpi-value">{{ avgOrderFormatted() }}</p>
-      <p class="kpi-sub">Per delivered order</p>
+      <p class="kpi-sub">Per paid order</p>
       <div class="kpi-spark" aria-hidden="true">
         <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
           <path d="M0 18 C12 16 24 20 36 16 C48 12 60 14 80 10"
-            fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 2"/>
+                fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round"
+                stroke-dasharray="4 2"/>
         </svg>
       </div>
     </article>
@@ -73,15 +75,16 @@
 
   </section>
 
-  <!-- ── Middle row: chart + status breakdown ───────────────────────────── -->
-  <section class="mid-grid" aria-label="Revenue chart and status breakdown">
+  <!-- ── Middle row: revenue chart + status breakdown ───────────────────── -->
+  <section class="mid-grid" aria-label="Revenue chart and order status">
 
     <article class="card chart-card">
       <header class="card-header">
         <div class="header-info">
-          <h2 class="card-title">Revenue + ARIMA forecast</h2>
+          <h2 class="card-title">Revenue + forecast</h2>
           @if (forecastModel()) {
-            <span class="model-tag" [title]="'AIC: ' + forecastModel()?.aic + ' • RMSE: ' + forecastModel()?.rmse">
+            <span class="model-tag"
+                  [title]="'AIC: ' + forecastModel()?.aic + ' • RMSE: ' + forecastModel()?.rmse">
               ARIMA{{ forecastModel()?.order }}
             </span>
           }
@@ -99,40 +102,39 @@
       </header>
 
       <div class="chart-area">
-        <svg viewBox="0 0 320 130" width="100%" height="100%" preserveAspectRatio="none" role="img">
-          <title>Revenue with ARIMA forecast</title>
+        <svg viewBox="0 0 320 130" width="100%" height="100%"
+             preserveAspectRatio="none" role="img">
+          <title>Revenue with forecast</title>
           <defs>
             <linearGradient id="cg-main" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#fff" stop-opacity="0.12"/>
               <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
             </linearGradient>
           </defs>
-
-          <!-- Grid -->
-          <line x1="0" y1="32" x2="320" y2="32" stroke="#1a1a1a" stroke-width="0.5"/>
-          <line x1="0" y1="64" x2="320" y2="64" stroke="#1a1a1a" stroke-width="0.5"/>
-          <line x1="0" y1="96" x2="320" y2="96" stroke="#1a1a1a" stroke-width="0.5"/>
-
+          <!-- Grid lines -->
+          <line x1="0" y1="32"  x2="320" y2="32"  stroke="#1a1a1a" stroke-width="0.5"/>
+          <line x1="0" y1="64"  x2="320" y2="64"  stroke="#1a1a1a" stroke-width="0.5"/>
+          <line x1="0" y1="96"  x2="320" y2="96"  stroke="#1a1a1a" stroke-width="0.5"/>
           <!-- Historical area + line -->
           @if (chartPath().area) {
             <path [attr.d]="chartPath().area" fill="url(#cg-main)"/>
-            <path [attr.d]="chartPath().line" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <path [attr.d]="chartPath().line" fill="none"
+                  stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
           }
-
           <!-- Forecast divider -->
-          <line x1="230" y1="0" x2="230" y2="130" stroke="#2a2a2a" stroke-width="0.5" stroke-dasharray="3 3"/>
-          <text x="232" y="11" font-size="7" fill="#444" font-family="Roboto, sans-serif">ARIMA →</text>
-
-          <!-- Forecast confidence band -->
+          <line x1="230" y1="0" x2="230" y2="130"
+                stroke="#2a2a2a" stroke-width="0.5" stroke-dasharray="3 3"/>
+          <text x="232" y="11" font-size="7" fill="#444"
+                font-family="Roboto, sans-serif">forecast →</text>
+          <!-- Confidence band -->
           @if (chartPath().band) {
             <path [attr.d]="chartPath().band" fill="#fff" fill-opacity="0.06"/>
           }
-
-          <!-- Forecast predicted line -->
+          <!-- Forecast line -->
           @if (chartPath().fLine) {
-            <path [attr.d]="chartPath().fLine"
-              fill="none" stroke="#aaa" stroke-width="1.5"
-              stroke-dasharray="4 3" stroke-linecap="round"/>
+            <path [attr.d]="chartPath().fLine" fill="none"
+                  stroke="#aaa" stroke-width="1.5"
+                  stroke-dasharray="4 3" stroke-linecap="round"/>
           }
         </svg>
       </div>
@@ -145,20 +147,20 @@
       <div class="status-list">
         @for (entry of statusEntries(); track entry.status) {
           <div class="status-row">
-            <span [class]="'status-badge ' + statusClass(entry.status)">{{ entry.status }}</span>
+            <span [class]="statusClass(entry.status)">{{ entry.status }}</span>
             <span class="status-count">{{ entry.count }}</span>
           </div>
         }
         @if (statusEntries().length === 0) {
-          <p class="empty-state">No data yet</p>
+          <p class="empty-state">No data</p>
         }
       </div>
     </article>
 
   </section>
 
-  <!-- ── Bottom row: recent orders + map ────────────────────────────────── -->
-  <section class="bot-grid" aria-label="Recent orders and map">
+  <!-- ── Bottom row: recent orders + map + calendar ─────────────────────── -->
+  <section class="bot-grid" aria-label="Recent orders, map and calendar">
 
     <article class="card orders-card">
       <header class="card-header">
@@ -168,7 +170,7 @@
         @for (order of recentOrders(); track order.id) {
           <li class="order-row" role="listitem">
             <div class="order-person">{{ order.personName }}</div>
-            <span [class]="'status-badge ' + statusClass(order.status)">{{ order.status }}</span>
+            <span [class]="statusClass(order.status)">{{ order.status }}</span>
             <span class="order-amount">{{ order.amount | number:'1.2-2' }} RON</span>
           </li>
         }
@@ -179,6 +181,8 @@
     </article>
 
     <app-order-map></app-order-map>
+
+    <app-delivery-calendar></app-delivery-calendar>
 
   </section>
 

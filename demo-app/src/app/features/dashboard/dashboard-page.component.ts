@@ -10,6 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { OrderMapComponent } from './order-map/order-map.component';
+import { DeliveryCalendarComponent } from './delivery-calendar/delivery-calendar.component';
 
 const API = 'http://localhost:8080';
 
@@ -56,7 +57,7 @@ export interface RecentOrder {
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [MatIconModule, DecimalPipe, DatePipe, OrderMapComponent],
+  imports: [MatIconModule, DecimalPipe, DatePipe, OrderMapComponent, DeliveryCalendarComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,14 +73,14 @@ export class DashboardPageComponent implements OnInit {
     { label: 'M', value: 'monthly' },
   ];
 
-  protected readonly kpi              = signal<KpiData | null>(null);
-  protected readonly revenueData      = signal<RevenuePoint[]>([]);
-  protected readonly forecastData     = signal<ForecastPoint[]>([]);
-  protected readonly forecastModel    = signal<ForecastResponse['model'] | null>(null);
-  protected readonly recentOrders     = signal<RecentOrder[]>([]);
-  protected readonly statusBreakdown  = signal<Record<string, number>>({});
-  protected readonly isLoading        = signal(true);
-  protected readonly selectedPeriod   = signal<'daily' | 'weekly' | 'monthly'>('weekly');
+  protected readonly kpi             = signal<KpiData | null>(null);
+  protected readonly revenueData     = signal<RevenuePoint[]>([]);
+  protected readonly forecastData    = signal<ForecastPoint[]>([]);
+  protected readonly forecastModel   = signal<ForecastResponse['model'] | null>(null);
+  protected readonly recentOrders    = signal<RecentOrder[]>([]);
+  protected readonly statusBreakdown = signal<Record<string, number>>({});
+  protected readonly isLoading       = signal(true);
+  protected readonly selectedPeriod  = signal<'daily' | 'weekly' | 'monthly'>('weekly');
 
   protected readonly totalRevenueFormatted = computed(() => {
     const v = this.kpi()?.totalRevenue ?? 0;
@@ -122,17 +123,11 @@ export class DashboardPageComponent implements OnInit {
     return `${path} L80 28 L0 28 Z`;
   });
 
-  /**
-   * Builds the SVG paths for the chart, combining historical revenue and the
-   * ARIMA forecast on a shared X-axis. The historical part fills 0–230 of the
-   * 320 viewBox; the forecast fills 230–320 (dashed, with confidence band).
-   */
   protected readonly chartPath = computed(() => {
     const history  = this.revenueData();
     const forecast = this.forecastData();
-    if (history.length < 2) return { line: '', area: '', fLine: '', fArea: '', band: '' };
+    if (history.length < 2) return { line: '', area: '', fLine: '', band: '' };
 
-    // Combined min/max so both segments share a Y scale
     const allValues = [
       ...history.map(d => d.revenue),
       ...forecast.flatMap(f => [f.predicted, f.lower, f.upper]),
@@ -141,17 +136,16 @@ export class DashboardPageComponent implements OnInit {
     const max = Math.max(...allValues);
     const range = max - min || 1;
 
-    const W_HIST     = 230;
+    const W_HIST = 230;
     const W_FORECAST = 90;
     const H = 110;
-
     const toY = (v: number) => H - ((v - min) / range) * (H - 20) - 10;
 
-    // ── Historical ──
     const histPts = history.map((d, i) => ({
       x: (i / Math.max(1, history.length - 1)) * W_HIST,
       y: toY(d.revenue),
     }));
+
     let line = `M${histPts[0].x.toFixed(1)} ${histPts[0].y.toFixed(1)}`;
     for (let i = 1; i < histPts.length; i++) {
       const cp = histPts[i - 1];
@@ -161,10 +155,7 @@ export class DashboardPageComponent implements OnInit {
     }
     const area = `${line} L${W_HIST} 130 L0 130 Z`;
 
-    // ── Forecast ──
-    if (forecast.length === 0) {
-      return { line, area, fLine: '', fArea: '', band: '' };
-    }
+    if (forecast.length === 0) return { line, area, fLine: '', band: '' };
 
     const fPts = forecast.map((f, i) => ({
       x: W_HIST + (i / Math.max(1, forecast.length - 1)) * W_FORECAST,
@@ -173,29 +164,20 @@ export class DashboardPageComponent implements OnInit {
       yU: toY(f.upper),
     }));
 
-    // Predicted line starts from the last historical point
     const startX = histPts[histPts.length - 1].x;
     const startY = histPts[histPts.length - 1].y;
     let fLine = `M${startX.toFixed(1)} ${startY.toFixed(1)}`;
-    for (const p of fPts) {
-      fLine += ` L${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
-    }
+    for (const p of fPts) fLine += ` L${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
 
-    // Confidence band (upper → reverse lower)
-    let bandUp   = `M${startX.toFixed(1)} ${startY.toFixed(1)}`;
+    let bandUp = `M${startX.toFixed(1)} ${startY.toFixed(1)}`;
     let bandDown = '';
-    for (const p of fPts) {
-      bandUp += ` L${p.x.toFixed(1)} ${p.yU.toFixed(1)}`;
-    }
+    for (const p of fPts) bandUp += ` L${p.x.toFixed(1)} ${p.yU.toFixed(1)}`;
     for (let i = fPts.length - 1; i >= 0; i--) {
       bandDown += ` L${fPts[i].x.toFixed(1)} ${fPts[i].yL.toFixed(1)}`;
     }
-    bandDown += ` L${startX.toFixed(1)} ${startY.toFixed(1)} Z`;
-    const band = bandUp + bandDown;
+    const band = bandUp + bandDown + ` L${startX.toFixed(1)} ${startY.toFixed(1)} Z`;
 
-    const fArea = `${fLine} L${(W_HIST + W_FORECAST).toFixed(1)} 130 L${startX.toFixed(1)} 130 Z`;
-
-    return { line, area, fLine, fArea, band };
+    return { line, area, fLine, band };
   });
 
   protected readonly statusEntries = computed(() =>
@@ -203,7 +185,11 @@ export class DashboardPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.loadAll();
+    this.loadKpi();
+    this.loadRevenue();
+    this.loadRecentOrders();
+    this.loadStatusBreakdown();
+    this.loadForecast();
   }
 
   protected setPeriod(p: 'daily' | 'weekly' | 'monthly'): void {
@@ -212,24 +198,13 @@ export class DashboardPageComponent implements OnInit {
   }
 
   protected statusClass(status: string): string {
-    return `status-${status.toLowerCase()}`;
-  }
-
-  private loadAll(): void {
-    this.isLoading.set(true);
-    this.loadKpi();
-    this.loadRevenue();
-    this.loadRecentOrders();
-    this.loadStatusBreakdown();
-    this.loadForecast();
+    return `status-badge status-${(status ?? '').toLowerCase()}`;
   }
 
   private loadKpi(): void {
     this.http.get<KpiData>(`${API}/analytics/kpi`).subscribe({
       next: data => this.kpi.set(data),
-      error: () => this.kpi.set({
-        totalRevenue: 0, totalOrders: 0, avgOrderValue: 0, totalCustomers: 0,
-      }),
+      error: () => {},
     });
   }
 
@@ -237,18 +212,11 @@ export class DashboardPageComponent implements OnInit {
     this.http
       .get<RevenuePoint[]>(`${API}/analytics/revenue?period=${this.selectedPeriod()}`)
       .subscribe({
-        next: data => {
-          this.revenueData.set(data);
-          this.isLoading.set(false);
-        },
+        next: data => { this.revenueData.set(data); this.isLoading.set(false); },
         error: () => this.isLoading.set(false),
       });
   }
 
-  /**
-   * Always fetch the 14-day daily ARIMA forecast. Even if the chart is showing
-   * weekly/monthly historical data, the forecast still appends 14 daily points.
-   */
   private loadForecast(): void {
     this.http.get<ForecastResponse>(`${API}/analytics/forecast?days=14`).subscribe({
       next: (res) => {
@@ -257,10 +225,7 @@ export class DashboardPageComponent implements OnInit {
           this.forecastModel.set(res.model ?? null);
         }
       },
-      error: () => {
-        // Forecast is optional — silently fail if the Python service is down
-        this.forecastData.set([]);
-      },
+      error: () => this.forecastData.set([]),
     });
   }
 

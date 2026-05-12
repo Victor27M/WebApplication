@@ -1,25 +1,25 @@
 .dashboard {
   padding: 24px 28px;
-  max-width: 1280px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-height: 100%;
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// ── Header ─────────────────────────────────────────────────────────────────
 .dash-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 4px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .dash-title {
-  font-size: 1.25rem;
+  margin: 0;
+  font-size: 1.1rem;
   font-weight: 500;
   color: var(--obs-text-1);
-  margin: 0;
 }
 
 .dash-date {
@@ -27,7 +27,7 @@
   color: var(--obs-text-3);
 }
 
-// ── KPI grid ──────────────────────────────────────────────────────────────────
+// ── KPI grid ───────────────────────────────────────────────────────────────
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -39,50 +39,34 @@
   border: 0.5px solid var(--obs-border);
   border-radius: var(--obs-radius-lg);
   padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  overflow: hidden;
 }
 
-.kpi-label {
-  font-size: 11px;
-  color: var(--obs-text-3);
-  margin: 0 0 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.kpi-value {
-  font-size: 1.6rem;
-  font-weight: 500;
-  color: var(--obs-text-1);
-  margin: 0 0 4px;
-  line-height: 1;
-}
-
-.kpi-sub {
-  font-size: 11px;
-  color: var(--obs-text-3);
-  margin: 0 0 10px;
-}
+.kpi-label { margin: 0; font-size: 11px; color: var(--obs-text-3); }
+.kpi-value { margin: 4px 0; font-size: 1.6rem; font-weight: 500; color: var(--obs-text-1); letter-spacing: -0.02em; }
+.kpi-sub   { margin: 0; font-size: 10px; color: var(--obs-text-3); }
 
 .kpi-spark {
-  height: 30px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  opacity: 0.6;
 }
 
-// ── Middle row ────────────────────────────────────────────────────────────────
+// ── Middle row ─────────────────────────────────────────────────────────────
 .mid-grid {
   display: grid;
-  grid-template-columns: 1.65fr 1fr;
-  gap: 12px;
-  min-height: 0;
-}
-
-// ── Bottom row ────────────────────────────────────────────────────────────────
-.bot-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 220px;
   gap: 12px;
 }
 
-// ── Shared card ───────────────────────────────────────────────────────────────
+// ── Shared card ────────────────────────────────────────────────────────────
 .card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
@@ -95,65 +79,71 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
+  gap: 8px;
 }
 
 .card-title {
+  margin: 0;
   font-size: 13px;
   font-weight: 500;
   color: var(--obs-text-1);
-  margin: 0;
 }
 
-// ── Period tabs ───────────────────────────────────────────────────────────────
-.period-tabs {
+.header-info {
   display: flex;
-  gap: 3px;
+  align-items: center;
+  gap: 8px;
 }
 
-.ptab {
-  font-size: 11px;
-  padding: 3px 9px;
+.model-tag {
+  font-size: 10px;
+  padding: 2px 7px;
   border-radius: 99px;
-  border: 0.5px solid transparent;
-  background: transparent;
-  color: var(--obs-text-3);
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.13s;
-
-  &:hover {
-    color: var(--obs-text-1);
-  }
-
-  &.active {
-    color: var(--obs-text-1);
-    background: var(--obs-surface-3);
-    border-color: var(--obs-border-2);
-  }
+  background: var(--obs-surface-3);
+  color: var(--obs-text-2);
+  cursor: help;
+  font-family: 'Roboto Mono', monospace, sans-serif;
 }
 
-// ── Chart ─────────────────────────────────────────────────────────────────────
-.chart-card {
-  display: flex;
-  flex-direction: column;
-}
+// ── Chart ──────────────────────────────────────────────────────────────────
+.chart-card { display: flex; flex-direction: column; }
 
 .chart-area {
   flex: 1;
-  min-height: 140px;
+  min-height: 120px;
 }
 
-// ── Status breakdown ──────────────────────────────────────────────────────────
+.period-tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.ptab {
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--obs-text-3);
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover  { background: var(--obs-surface-2); color: var(--obs-text-2); }
+  &.active { background: var(--obs-surface-3); color: var(--obs-text-1); }
+}
+
+// ── Status card ────────────────────────────────────────────────────────────
 .status-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .status-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .status-count {
@@ -162,136 +152,48 @@
   color: var(--obs-text-1);
 }
 
-// ── Recent orders ─────────────────────────────────────────────────────────────
+// ── Bottom row: 3 columns ──────────────────────────────────────────────────
+.bot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+// ── Recent orders ──────────────────────────────────────────────────────────
 .orders-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 10px;
 }
 
 .order-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 9px 0;
-  border-bottom: 0.5px solid var(--obs-border);
-
-  &:last-child {
-    border-bottom: none;
-  }
+  gap: 10px;
 }
 
 .order-person {
+  flex: 1;
   font-size: 13px;
   color: var(--obs-text-1);
-  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .order-amount {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--obs-text-1);
+  font-size: 12px;
+  color: var(--obs-text-2);
   white-space: nowrap;
 }
 
-// ── Map placeholder ───────────────────────────────────────────────────────────
-.map-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.map-placeholder {
-  flex: 1;
-  min-height: 180px;
-  background: #0d0d0d;
-  border-radius: var(--obs-radius-md);
-  position: relative;
-  overflow: hidden;
-}
-
-.map-grid-bg {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--obs-border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--obs-border) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-.map-pins {
-  position: absolute;
-  inset: 0;
-}
-
-.pin {
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-
-  &.delivered { background: var(--status-delivered-fg); }
-  &.shipped   { background: var(--status-shipped-fg); }
-  &.pending   { background: var(--status-pending-fg); }
-  &.confirmed { background: var(--status-confirmed-fg); }
-}
-
-.map-legend {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 0.5px solid var(--obs-border-2);
-  border-radius: var(--obs-radius-md);
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  color: var(--obs-text-2);
-}
-
-.legend-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-
-  &.delivered { background: var(--status-delivered-fg); }
-  &.shipped   { background: var(--status-shipped-fg); }
-  &.pending   { background: var(--status-pending-fg); }
-}
-
-.coming-soon-badge {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 99px;
-  background: var(--obs-surface-3);
-  color: var(--obs-text-3);
-}
-
-// ── Empty states ──────────────────────────────────────────────────────────────
 .empty-state {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--obs-text-3);
   text-align: center;
   padding: 16px 0;
-}
-
-// ── Responsive ────────────────────────────────────────────────────────────────
-@media (max-width: 1024px) {
-  .kpi-grid  { grid-template-columns: repeat(2, 1fr); }
-  .mid-grid  { grid-template-columns: 1fr; }
-  .bot-grid  { grid-template-columns: 1fr; }
 }
