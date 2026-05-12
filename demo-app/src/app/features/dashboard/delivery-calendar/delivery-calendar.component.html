@@ -2,19 +2,17 @@
   <header class="cal-header">
     <h2 class="card-title">Delivery calendar</h2>
     <div class="cal-nav">
-      <button class="nav-btn" (click)="prevMonth()" aria-label="Previous month">‹</button>
+      <button class="nav-btn" (click)="prevMonth()">‹</button>
       <span class="month-label">{{ monthLabel() }}</span>
-      <button class="nav-btn" (click)="nextMonth()" aria-label="Next month">›</button>
+      <button class="nav-btn" (click)="nextMonth()">›</button>
     </div>
   </header>
 
-  <!-- Day-of-week headers -->
   <div class="cal-grid">
     @for (h of weekHeaders; track h) {
       <div class="day-header">{{ h }}</div>
     }
 
-    <!-- Calendar day cells -->
     @for (day of calendarDays(); track day.date.toISOString()) {
       <div
         class="day-cell"
@@ -23,14 +21,12 @@
         [class.has-orders]="day.orders.length > 0 && day.isCurrentMonth"
         [class.selected]="selectedDay()?.date.toDateString() === day.date.toDateString()"
         (click)="selectDay(day)"
-        [attr.aria-label]="day.dayNum + ' ' + (day.orders.length > 0 ? day.orders.length + ' orders' : '')"
-        role="button"
       >
         <span class="day-num">{{ day.dayNum }}</span>
         @if (day.orders.length > 0 && day.isCurrentMonth) {
           <div class="day-dots">
             @for (o of day.orders.slice(0, 3); track o.id) {
-              <div [class]="statusClass(o.status)"></div>
+              <div [class]="dotClass(o.status)"></div>
             }
           </div>
           @if (day.orders.length > 3) {
@@ -41,9 +37,8 @@
     }
   </div>
 
-  <!-- Selected day order list -->
   @if (selectedDay(); as day) {
-    <div class="day-detail" role="region" [attr.aria-label]="'Orders for ' + day.dayNum">
+    <div class="day-detail">
       <p class="day-detail-title">
         {{ day.date | date:'d MMMM' }} — {{ day.orders.length }} order{{ day.orders.length !== 1 ? 's' : '' }}
       </p>

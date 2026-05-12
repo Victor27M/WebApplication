@@ -17,9 +17,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class OrderService {
 
-    private final OrderRepository orderRepository;
-    private final PersonRepository personRepository;
-    private final ProductRepository productRepository;
+    private final OrderRepository       orderRepository;
+    private final PersonRepository      personRepository;
+    private final ProductRepository     productRepository;
+    private final OrderEventPublisher   orderEventPublisher;
 
     public List<Order> getOrders() {
         return orderRepository.findAll();
@@ -48,13 +49,14 @@ public class OrderService {
         List<OrderItem> items = buildItems(dto.getItems(), order);
         order.setItems(items);
 
-        // deduct stock if order is created already as SHIPPED or DELIVERED
         if (order.getStatus() == OrderStatus.SHIPPED ||
                 order.getStatus() == OrderStatus.DELIVERED) {
             deductStock(items);
         }
 
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        orderEventPublisher.publish(saved);   // ← WebSocket broadcast
+        return saved;
     }
 
     @Transactional
@@ -76,7 +78,6 @@ public class OrderService {
         OrderStatus oldStatus = existing.getStatus();
         OrderStatus newStatus = dto.getStatus() != null ? dto.getStatus() : oldStatus;
 
-        // restore old stock before applying new items
         if (oldStatus == OrderStatus.SHIPPED || oldStatus == OrderStatus.DELIVERED) {
             restoreStock(existing.getItems());
         }
@@ -89,12 +90,13 @@ public class OrderService {
         existing.setDestination(dto.getDestination());
         existing.setStatus(newStatus);
 
-        // deduct stock for new status
         if (newStatus == OrderStatus.SHIPPED || newStatus == OrderStatus.DELIVERED) {
             deductStock(newItems);
         }
 
-        return orderRepository.save(existing);
+        Order saved = orderRepository.save(existing);
+        orderEventPublisher.publish(saved);   // ← WebSocket broadcast
+        return saved;
     }
 
     @Transactional
@@ -126,25 +128,21 @@ public class OrderService {
 
         if (patch.getStatus() != null) {
             OrderStatus newStatus = patch.getStatus();
-
             boolean wasNotShipped = oldStatus != OrderStatus.SHIPPED &&
                     oldStatus != OrderStatus.DELIVERED;
             boolean isNowShipped  = newStatus == OrderStatus.SHIPPED ||
                     newStatus == OrderStatus.DELIVERED;
 
-            if (wasNotShipped && isNowShipped) {
-                deductStock(existing.getItems());
-            }
-
-            if ((oldStatus == OrderStatus.SHIPPED) &&
-                    newStatus == OrderStatus.CANCELLED) {
+            if (wasNotShipped && isNowShipped) deductStock(existing.getItems());
+            if (oldStatus == OrderStatus.SHIPPED && newStatus == OrderStatus.CANCELLED) {
                 restoreStock(existing.getItems());
             }
-
             existing.setStatus(newStatus);
         }
 
-        return orderRepository.save(existing);
+        Order saved = orderRepository.save(existing);
+        orderEventPublisher.publish(saved);   // ← WebSocket broadcast
+        return saved;
     }
 
     public void deleteOrder(UUID uuid) throws ValidationException {
@@ -163,19 +161,16 @@ public class OrderService {
 
     // ── helpers ────────────────────────────────────────────────────────────────
 
-    private List<OrderItem> buildItems(
-            List<OrderItemDTO> dtoItems, Order order) throws ValidationException {
-
+    private List<OrderItem> buildItems(List<OrderItemDTO> dtoItems, Order order)
+            throws ValidationException {
         if (dtoItems == null || dtoItems.isEmpty()) {
             throw new ValidationException("An order must contain at least one item");
         }
-
         List<OrderItem> items = new ArrayList<>();
         for (OrderItemDTO dto : dtoItems) {
             Product product = productRepository.findById(dto.getProductId())
                     .orElseThrow(() -> new ValidationException(
                             "Product with id " + dto.getProductId() + " not found"));
-
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(product);
@@ -189,12 +184,10 @@ public class OrderService {
         for (OrderItem item : items) {
             Product product = item.getProduct();
             int newStock = product.getStock() - item.getQuantity();
-            if (newStock < 0) {
-                throw new ValidationException(
-                        "Insufficient stock for product: " + product.getName() +
-                                ". Available: " + product.getStock() +
-                                ", Requested: " + item.getQuantity());
-            }
+            if (newStock < 0) throw new ValidationException(
+                    "Insufficient stock for product: " + product.getName() +
+                            ". Available: " + product.getStock() +
+                            ", Requested: " + item.getQuantity());
             product.setStock(newStock);
             productRepository.save(product);
         }

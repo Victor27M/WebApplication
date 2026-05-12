@@ -1,37 +1,112 @@
 @use '@angular/material' as mat;
 @import 'leaflet/dist/leaflet.css';
 
+// ── Angular Material base ──────────────────────────────────────────────────
 html {
   height: 100%;
-  @include mat.theme(
-      (
-        color: (
-          primary: mat.$azure-palette,
-          tertiary: mat.$blue-palette,
-        ),
-        typography: Roboto,
-        density: 0,
-      )
-  );
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
 }
+
+// ── Obsidian design tokens ─────────────────────────────────────────────────
+:root {
+  --obs-bg:          #080808;
+  --obs-surface:     #111111;
+  --obs-surface-2:   #161616;
+  --obs-surface-3:   #1e1e1e;
+  --obs-border:      #1e1e1e;
+  --obs-border-2:    #2a2a2a;
+  --obs-text-1:      #ffffff;
+  --obs-text-2:      #888888;
+  --obs-text-3:      #444444;
+  --obs-sidebar-w-collapsed: 56px;
+  --obs-sidebar-w-expanded:  188px;
+  --obs-radius-sm:  10px;
+  --obs-radius-md:  14px;
+  --obs-radius-lg:  20px;
+
+  // Status colours — only chromatic elements in the UI
+  --status-pending-bg:    #2a1a00;
+  --status-pending-fg:    #f59e0b;
+  --status-confirmed-bg:  #0a1a3a;
+  --status-confirmed-fg:  #60a5fa;
+  --status-shipped-bg:    #1a0a3a;
+  --status-shipped-fg:    #a78bfa;
+  --status-delivered-bg:  #052914;
+  --status-delivered-fg:  #16a34a;
+  --status-cancelled-bg:  #2a0808;
+  --status-cancelled-fg:  #f87171;
+  --status-unpaid-bg:     #1a1a1a;
+  --status-unpaid-fg:     #888888;
+  --status-paid-bg:       #052914;
+  --status-paid-fg:       #16a34a;
+  --status-failed-bg:     #2a0808;
+  --status-failed-fg:     #f87171;
+  --status-refunded-bg:   #1a1a2a;
+  --status-refunded-fg:   #818cf8;
+  --status-processing-bg: #2a1a00;
+  --status-processing-fg: #f59e0b;
+}
+
+// ── Base reset ─────────────────────────────────────────────────────────────
+* { box-sizing: border-box; }
 
 body {
-  color-scheme: light;
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
   margin: 0;
   height: 100%;
+  background-color: var(--obs-bg);
+  color: var(--obs-text-1);
+  font-family: 'Roboto', sans-serif;
+  color-scheme: dark;
 }
 
-/* ── Toolbar ────────────────────────────────────────────────── */
-
-.page-toolbar {
-  .toolbar-title { font-weight: 500; }
-  .toolbar-spacer { flex: 1 1 auto; }
+// ── Status badges ──────────────────────────────────────────────────────────
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
-/* ── Page layout ────────────────────────────────────────────── */
+.status-pending    { background: var(--status-pending-bg);    color: var(--status-pending-fg);    }
+.status-confirmed  { background: var(--status-confirmed-bg);  color: var(--status-confirmed-fg);  }
+.status-shipped    { background: var(--status-shipped-bg);    color: var(--status-shipped-fg);    }
+.status-delivered  { background: var(--status-delivered-bg);  color: var(--status-delivered-fg);  }
+.status-cancelled  { background: var(--status-cancelled-bg);  color: var(--status-cancelled-fg);  }
+.status-unpaid     { background: var(--status-unpaid-bg);     color: var(--status-unpaid-fg);     }
+.status-paid       { background: var(--status-paid-bg);       color: var(--status-paid-fg);       }
+.status-failed     { background: var(--status-failed-bg);     color: var(--status-failed-fg);     }
+.status-refunded   { background: var(--status-refunded-bg);   color: var(--status-refunded-fg);   }
+.status-processing { background: var(--status-processing-bg); color: var(--status-processing-fg); }
+
+// ── Role chips ─────────────────────────────────────────────────────────────
+.role-chip     { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 500; }
+.role-admin    { background: #1a1a3a; color: #818cf8; }
+.role-customer { background: #0a2a1a; color: #4ade80; }
+
+// ── Product chip ───────────────────────────────────────────────────────────
+.products-cell  { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; }
+.product-chip   { display: inline-block; background: #1a1a3a; color: #818cf8; padding: 2px 8px; border-radius: 99px; font-size: 0.72rem; font-weight: 500; }
+
+// ── Stock states ───────────────────────────────────────────────────────────
+.stock-available { color: #16a34a; font-weight: 500; }
+.stock-empty     { color: #f87171; font-weight: 500; }
+
+// ── Shared page layout ─────────────────────────────────────────────────────
+.page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px;
+}
 
 .page-header {
   display: flex;
@@ -42,123 +117,77 @@ body {
   flex-wrap: wrap;
 }
 
-.page-title {
-  margin: 0 0 4px;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
+.page-title    { margin: 0 0 4px; font-size: 1.25rem; font-weight: 500; color: var(--obs-text-1); }
+.page-subtitle { margin: 0; font-size: 13px; color: var(--obs-text-3); }
 
-.page-subtitle {
-  margin: 0;
-  color: #555;
-}
-
-/* ── Alerts ─────────────────────────────────────────────────── */
-
+// ── Alerts ─────────────────────────────────────────────────────────────────
 .error-alert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  background-color: #fdecea;
-  border: 1px solid #f44336;
-  border-radius: 4px;
-  color: #b71c1c;
-  font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; margin-bottom: 20px;
+  background: #2a0808; border: 0.5px solid #f87171;
+  border-radius: var(--obs-radius-md);
+  color: #f87171; font-size: 13px;
 }
 
-.loading-status {
-  margin: 0 0 12px;
-  color: #0d47a1;
-  font-weight: 500;
-}
+.loading-status { margin: 0 0 12px; color: var(--obs-text-2); font-size: 13px; }
 
-/* ── Tables ─────────────────────────────────────────────────── */
-
+// ── Shared table ───────────────────────────────────────────────────────────
 .table-container {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  background: var(--obs-surface);
+  border: 0.5px solid var(--obs-border);
+  border-radius: var(--obs-radius-lg);
   overflow: auto;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-
   table { width: 100%; }
-  &.is-busy { opacity: 0.75; }
+  &.is-busy { opacity: 0.6; }
 }
 
-.no-data-cell {
-  padding: 24px;
-  text-align: center;
-  color: #666;
+.mat-mdc-header-cell {
+  background: var(--obs-surface) !important;
+  color: var(--obs-text-3) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 0.5px solid var(--obs-border) !important;
 }
 
-.delete-btn {
-  color: #c62828;
+.mat-mdc-row {
+  background: var(--obs-surface) !important;
+  border-bottom: 0.5px solid var(--obs-border) !important;
+  &:hover { background: var(--obs-surface-2) !important; }
 }
 
-/* ── Product chips ──────────────────────────────────────────── */
+.mat-mdc-cell   { color: var(--obs-text-1) !important; font-size: 13px !important; }
+.no-data-cell   { padding: 32px; text-align: center; color: var(--obs-text-3); font-size: 13px; }
+.delete-btn     { color: #f87171 !important; }
 
-.products-cell {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 4px 0;
+// ── Angular Material dark overrides ────────────────────────────────────────
+.mat-mdc-dialog-surface {
+  background: var(--obs-surface) !important;
+  border: 0.5px solid var(--obs-border-2) !important;
+  border-radius: var(--obs-radius-lg) !important;
 }
 
-.product-chip {
-  display: inline-block;
-  background: #e8eaf6;
-  color: #3949ab;
-  padding: 2px 8px;
-  margin: 2px 0;
-  border-radius: 12px;
-  font-size: 0.78rem;
-  font-weight: 500;
+.mat-mdc-form-field {
+  .mdc-text-field { background: var(--obs-surface-2) !important; border-radius: var(--obs-radius-sm) !important; }
+  .mat-mdc-floating-label,
+  .mat-mdc-input-element,
+  .mat-mdc-select-value { color: var(--obs-text-1) !important; }
 }
 
-/* ── Role chips ─────────────────────────────────────────────── */
-
-.role-chip {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.mat-mdc-raised-button.mat-primary {
+  background: var(--obs-text-1) !important;
+  color: var(--obs-bg) !important;
+  border-radius: var(--obs-radius-sm) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
-.role-admin    { background: #e8eaf6; color: #283593; }
-.role-customer { background: #e8f5e9; color: #2e7d32; }
-
-/* ── Status badges ──────────────────────────────────────────── */
-
-.status-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+.mat-mdc-icon-button {
+  color: var(--obs-text-2) !important;
+  &:hover { color: var(--obs-text-1) !important; }
 }
 
-.status-pending   { background: #fff3e0; color: #e65100; }
-.status-confirmed { background: #e3f2fd; color: #0d47a1; }
-.status-shipped   { background: #f3e5f5; color: #6a1b9a; }
-.status-delivered { background: #e8f5e9; color: #1b5e20; }
-.status-cancelled { background: #fce4ec; color: #880e4f; }
-
-/* ── Stock badges ───────────────────────────────────────────── */
-
-.stock-available { color: #2e7d32; font-weight: 500; }
-.stock-empty     { color: #c62828; font-weight: 500; }
-
-/* ── Person cell (orders) ───────────────────────────────────── */
-
-.person-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.person-name  { font-weight: 500; font-size: 0.9rem; }
-.person-email { font-size: 0.78rem; color: #777; }
+// ── Filters row ────────────────────────────────────────────────────────────
+.filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-field { flex: 1 1 180px; }

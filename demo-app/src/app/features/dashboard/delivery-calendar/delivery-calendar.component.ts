@@ -6,6 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Order } from '../../../models/order.model';
 
@@ -22,6 +23,7 @@ interface CalendarDay {
 @Component({
   selector: 'app-delivery-calendar',
   standalone: true,
+  imports: [DatePipe],
   templateUrl: './delivery-calendar.component.html',
   styleUrl: './delivery-calendar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,10 +31,10 @@ interface CalendarDay {
 export class DeliveryCalendarComponent implements OnInit {
   private readonly http = inject(HttpClient);
 
-  protected readonly today        = new Date();
-  protected readonly viewDate     = signal(new Date());
-  protected readonly allOrders    = signal<Order[]>([]);
-  protected readonly selectedDay  = signal<CalendarDay | null>(null);
+  protected readonly today       = new Date();
+  protected readonly viewDate    = signal(new Date());
+  protected readonly allOrders   = signal<Order[]>([]);
+  protected readonly selectedDay = signal<CalendarDay | null>(null);
 
   protected readonly monthLabel = computed(() =>
     this.viewDate().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
@@ -46,40 +48,25 @@ export class DeliveryCalendarComponent implements OnInit {
     const year   = view.getFullYear();
     const month  = view.getMonth();
 
-    // First day of the month (0=Sun … 6=Sat) → shift to Mon-based
-    const firstDay   = new Date(year, month, 1);
-    const startOffset = (firstDay.getDay() + 6) % 7; // Mon = 0
+    const firstDay    = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const days: CalendarDay[] = [];
+    const todayStr = this.today.toDateString();
 
-    // Padding days from previous month
     for (let i = startOffset - 1; i >= 0; i--) {
       const d = new Date(year, month, -i);
       days.push({ date: d, dayNum: d.getDate(), isToday: false, isCurrentMonth: false, orders: [] });
     }
 
-    // Current month days
-    const todayStr = this.today.toDateString();
     for (let d = 1; d <= daysInMonth; d++) {
-      const date    = new Date(year, month, d);
-      const dateStr = date.toDateString();
-
-      const dayOrders = orders.filter(o => {
-        const od = new Date(o.orderDate);
-        return od.toDateString() === dateStr;
-      });
-
-      days.push({
-        date,
-        dayNum: d,
-        isToday: dateStr === todayStr,
-        isCurrentMonth: true,
-        orders: dayOrders,
-      });
+      const date      = new Date(year, month, d);
+      const dateStr   = date.toDateString();
+      const dayOrders = orders.filter(o => new Date(o.orderDate).toDateString() === dateStr);
+      days.push({ date, dayNum: d, isToday: dateStr === todayStr, isCurrentMonth: true, orders: dayOrders });
     }
 
-    // Padding to complete the last week (42 cells total)
     while (days.length < 42) {
       const d = new Date(year, month + 1, days.length - startOffset - daysInMonth + 1);
       days.push({ date: d, dayNum: d.getDate(), isToday: false, isCurrentMonth: false, orders: [] });
@@ -109,18 +96,11 @@ export class DeliveryCalendarComponent implements OnInit {
 
   protected selectDay(day: CalendarDay): void {
     if (!day.isCurrentMonth || day.orders.length === 0) return;
-    this.selectedDay.set(this.selectedDay()?.date.toDateString() === day.date.toDateString() ? null : day);
+    const isSame = this.selectedDay()?.date.toDateString() === day.date.toDateString();
+    this.selectedDay.set(isSame ? null : day);
   }
 
-  protected statusClass(status: string): string {
-    return `dot dot-${status.toLowerCase()}`;
-  }
-
-  protected dominantStatus(orders: Order[]): string {
-    const priorities = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
-    for (const s of priorities) {
-      if (orders.some(o => o.status === s)) return s.toLowerCase();
-    }
-    return 'pending';
+  protected dotClass(status: string): string {
+    return `dot dot-${(status ?? '').toLowerCase()}`;
   }
 }

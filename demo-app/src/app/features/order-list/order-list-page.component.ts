@@ -1,126 +1,185 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Order } from '../../../models/order.model';
-
-const API = 'http://localhost:8080';
-
-interface CalendarDay {
-  date: Date;
-  dayNum: number;
-  isToday: boolean;
-  isCurrentMonth: boolean;
-  orders: Order[];
-}
+import { DatePipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ConfirmDeleteDialogComponent } from '../../components/confirm-delete-dialog/confirm-delete-dialog.component';
+import {
+  OrderFormDialogComponent,
+  OrderFormDialogData,
+  OrderFormDialogResult,
+} from '../../components/order-form-dialog/order-form-dialog.component';
+import { Person } from '../../models/person.model';
+import { Product } from '../../models/product.model';
+import { CreateOrderDto, Order, UpdateOrderDto } from '../../models/order.model';
+import { PersonService } from '../../services/person.service';
+import { ProductService } from '../../services/product.service';
+import { PaymentService } from '../../services/payment.service';
+import { OrderListStore } from './order-list.store';
 
 @Component({
-  selector: 'app-delivery-calendar',
+  selector: 'app-order-list-page',
   standalone: true,
-  templateUrl: './delivery-calendar.component.html',
-  styleUrl: './delivery-calendar.component.scss',
+  imports: [
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatTooltipModule,
+    DatePipe,
+  ],
+  templateUrl: './order-list-page.component.html',
+  styleUrl: './order-list-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeliveryCalendarComponent implements OnInit {
-  private readonly http = inject(HttpClient);
+export class OrderListPageComponent implements OnInit {
+  private readonly dialog         = inject(MatDialog);
+  private readonly store          = inject(OrderListStore);
+  private readonly personService  = inject(PersonService);
+  private readonly productService = inject(ProductService);
+  private readonly paymentService = inject(PaymentService);
+  private readonly snackBar       = inject(MatSnackBar);
+  private readonly destroyRef     = inject(DestroyRef);
 
-  protected readonly today        = new Date();
-  protected readonly viewDate     = signal(new Date());
-  protected readonly allOrders    = signal<Order[]>([]);
-  protected readonly selectedDay  = signal<CalendarDay | null>(null);
+  protected readonly orders    = this.store.orders;
+  protected readonly isLoading = this.store.isLoading;
+  protected readonly hasError  = this.store.hasError;
 
-  protected readonly monthLabel = computed(() =>
-    this.viewDate().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
-  );
+  protected readonly displayedColumns = [
+    'person', 'products', 'destination', 'status', 'paymentStatus', 'date', 'actions',
+  ];
 
-  protected readonly weekHeaders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-  protected readonly calendarDays = computed((): CalendarDay[] => {
-    const view   = this.viewDate();
-    const orders = this.allOrders();
-    const year   = view.getFullYear();
-    const month  = view.getMonth();
-
-    // First day of the month (0=Sun … 6=Sat) → shift to Mon-based
-    const firstDay   = new Date(year, month, 1);
-    const startOffset = (firstDay.getDay() + 6) % 7; // Mon = 0
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    const days: CalendarDay[] = [];
-
-    // Padding days from previous month
-    for (let i = startOffset - 1; i >= 0; i--) {
-      const d = new Date(year, month, -i);
-      days.push({ date: d, dayNum: d.getDate(), isToday: false, isCurrentMonth: false, orders: [] });
-    }
-
-    // Current month days
-    const todayStr = this.today.toDateString();
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date    = new Date(year, month, d);
-      const dateStr = date.toDateString();
-
-      const dayOrders = orders.filter(o => {
-        const od = new Date(o.orderDate);
-        return od.toDateString() === dateStr;
-      });
-
-      days.push({
-        date,
-        dayNum: d,
-        isToday: dateStr === todayStr,
-        isCurrentMonth: true,
-        orders: dayOrders,
-      });
-    }
-
-    // Padding to complete the last week (42 cells total)
-    while (days.length < 42) {
-      const d = new Date(year, month + 1, days.length - startOffset - daysInMonth + 1);
-      days.push({ date: d, dayNum: d.getDate(), isToday: false, isCurrentMonth: false, orders: [] });
-    }
-
-    return days;
-  });
+  protected readonly availablePersons  = signal<Person[]>([]);
+  protected readonly availableProducts = signal<Product[]>([]);
 
   ngOnInit(): void {
-    this.http.get<Order[]>(`${API}/order`).subscribe({
-      next: (orders) => this.allOrders.set(orders),
-      error: () => {},
-    });
+    this.store.load();
+    this.personService.getAll().subscribe(p  => this.availablePersons.set(p));
+    this.productService.getAll().subscribe(p => this.availableProducts.set(p));
   }
 
-  protected prevMonth(): void {
-    const v = this.viewDate();
-    this.viewDate.set(new Date(v.getFullYear(), v.getMonth() - 1, 1));
-    this.selectedDay.set(null);
-  }
-
-  protected nextMonth(): void {
-    const v = this.viewDate();
-    this.viewDate.set(new Date(v.getFullYear(), v.getMonth() + 1, 1));
-    this.selectedDay.set(null);
-  }
-
-  protected selectDay(day: CalendarDay): void {
-    if (!day.isCurrentMonth || day.orders.length === 0) return;
-    this.selectedDay.set(this.selectedDay()?.date.toDateString() === day.date.toDateString() ? null : day);
-  }
+  protected getPersonName(order: Order): string  { return order.person?.name  ?? '—'; }
+  protected getPersonEmail(order: Order): string { return order.person?.email ?? '';  }
 
   protected statusClass(status: string): string {
-    return `dot dot-${status.toLowerCase()}`;
+    return `status-badge status-${(status ?? '').toLowerCase()}`;
   }
 
-  protected dominantStatus(orders: Order[]): string {
-    const priorities = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
-    for (const s of priorities) {
-      if (orders.some(o => o.status === s)) return s.toLowerCase();
-    }
-    return 'pending';
+  protected canPay(order: Order): boolean {
+    return order.paymentStatus === 'UNPAID' || order.paymentStatus === 'FAILED';
+  }
+
+  protected canRefund(order: Order): boolean {
+    return order.paymentStatus === 'PAID';
+  }
+
+  protected pay(order: Order): void {
+    this.paymentService.pay(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this.store.orders.update(list =>
+            list.map(o => o.id === updated.id ? { ...o, paymentStatus: updated.paymentStatus } : o),
+          );
+          this.snackBar.open('Payment successful ✓', 'Close', { duration: 3000 });
+        },
+        error: () => this.snackBar.open('Payment failed', 'Close', { duration: 3000 }),
+      });
+  }
+
+  protected refund(order: Order): void {
+    this.paymentService.refund(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this.store.orders.update(list =>
+            list.map(o => o.id === updated.id ? { ...o, paymentStatus: updated.paymentStatus } : o),
+          );
+          this.snackBar.open('Refund issued ✓', 'Close', { duration: 3000 });
+        },
+        error: () => this.snackBar.open('Refund failed', 'Close', { duration: 3000 }),
+      });
+  }
+
+  protected openCreateDialog(): void {
+    if (this.isLoading()) return;
+    this.dialog
+      .open<OrderFormDialogComponent, OrderFormDialogData, OrderFormDialogResult>(
+        OrderFormDialogComponent,
+        {
+          data: {
+            title: 'Create Order',
+            submitLabel: 'Create',
+            persons: this.availablePersons(),
+            products: this.availableProducts(),
+          },
+        },
+      )
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result) return;
+        const dto: CreateOrderDto = {
+          personId:    result.personId,
+          items:       result.items,
+          destination: result.destination,
+          status:      result.status,
+        };
+        this.store.create(dto);
+      });
+  }
+
+  protected openEditDialog(order: Order): void {
+    if (this.isLoading()) return;
+    this.dialog
+      .open<OrderFormDialogComponent, OrderFormDialogData, OrderFormDialogResult>(
+        OrderFormDialogComponent,
+        {
+          data: {
+            title: 'Edit Order',
+            submitLabel: 'Save',
+            persons: this.availablePersons(),
+            products: this.availableProducts(),
+            initialValue: order,
+          },
+        },
+      )
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result) return;
+        const dto: UpdateOrderDto = {
+          personId:    result.personId,
+          items:       result.items,
+          destination: result.destination,
+          status:      result.status,
+        };
+        this.store.update(order.id, dto);
+      });
+  }
+
+  protected openDeleteDialog(order: Order): void {
+    if (this.isLoading()) return;
+    this.dialog
+      .open(ConfirmDeleteDialogComponent, {
+        data: { name: `Order #${order.id?.toString().slice(0, 8)}` },
+      })
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.remove(order.id);
+      });
   }
 }
