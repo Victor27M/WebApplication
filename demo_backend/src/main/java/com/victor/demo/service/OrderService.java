@@ -186,8 +186,8 @@ public class OrderService {
             int newStock = product.getStock() - item.getQuantity();
             if (newStock < 0) throw new ValidationException(
                     "Insufficient stock for product: " + product.getName() +
-                            ". Available: " + product.getStock() +
-                            ", Requested: " + item.getQuantity());
+                    ". Available: " + product.getStock() +
+                    ", Requested: " + item.getQuantity());
             product.setStock(newStock);
             productRepository.save(product);
         }

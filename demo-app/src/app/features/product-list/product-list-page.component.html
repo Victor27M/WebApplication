@@ -1,59 +1,27 @@
-<mat-toolbar color="primary" class="page-toolbar">
-  <span class="toolbar-title">Product Manager</span>
-  <span class="toolbar-spacer" aria-hidden="true"></span>
-  <button mat-button type="button" (click)="goToPeople()">
-    <mat-icon aria-hidden="true">people</mat-icon>
-    People
-  </button>
-  <button mat-button type="button" (click)="goToOrders()">
-    <mat-icon aria-hidden="true">shopping_cart</mat-icon>
-    Orders
-  </button>
-  <button mat-button type="button" (click)="logout()" aria-label="Sign out">
-    <mat-icon aria-hidden="true">logout</mat-icon>
-    Logout
-  </button>
-</mat-toolbar>
-
-<main class="content">
+<div class="page-content">
   <header class="page-header">
     <div>
-      <h1 class="page-title">Manage Products</h1>
-      <p class="page-subtitle">View, create, edit, and delete products.</p>
+      <h1 class="page-title">Products</h1>
+      <p class="page-subtitle">View, create, edit and delete products.</p>
     </div>
-    <button
-      mat-flat-button
-      (click)="openCreateDialog()"
-      aria-label="Add new product"
-      [disabled]="isLoading()"
-    >
+    <button mat-flat-button (click)="openCreateDialog()" [disabled]="isLoading()">
       <mat-icon>add</mat-icon>
       New Product
     </button>
   </header>
 
-  <!-- Filter & Sort Controls -->
+  <!-- Filters -->
   <section class="filters" aria-label="Filter and sort products">
     <mat-form-field appearance="outline" class="filter-field">
       <mat-label>Search by name</mat-label>
-      <input
-        matInput
-        [ngModel]="filterName()"
-        (ngModelChange)="filterName.set($event)"
-        placeholder="e.g. Laptop"
-      />
+      <input matInput [ngModel]="filterName()" (ngModelChange)="filterName.set($event)" placeholder="e.g. Laptop"/>
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="filter-field">
       <mat-label>Max price</mat-label>
-      <input
-        matInput
-        type="number"
-        [ngModel]="filterMaxPrice()"
-        (ngModelChange)="filterMaxPrice.set($event ? +$event : null)"
-        placeholder="e.g. 500"
-      />
+      <input matInput type="number" [ngModel]="filterMaxPrice()"
+        (ngModelChange)="filterMaxPrice.set($event ? +$event : null)" placeholder="e.g. 500"/>
       <mat-icon matSuffix>euro</mat-icon>
     </mat-form-field>
 
@@ -73,59 +41,47 @@
   }
 
   @if (hasError()) {
-    <div class="error-alert" role="alert" aria-live="assertive">
-      <mat-icon aria-hidden="true">error_outline</mat-icon>
-      An error occurred while processing your request. Please try again.
+    <div class="error-alert" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      An error occurred. Please try again.
     </div>
   }
 
-  <div
-    class="table-container"
-    role="region"
-    aria-label="Product list"
-    [attr.aria-busy]="isLoading()"
-    [class.is-busy]="isLoading()"
-  >
+  <div class="table-container" [class.is-busy]="isLoading()" role="region" aria-label="Product list">
     <table mat-table [dataSource]="filteredProducts()" aria-label="Products table">
 
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef scope="col">Name</th>
-        <td mat-cell *matCellDef="let product">{{ product.name }}</td>
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let p">{{ p.name }}</td>
       </ng-container>
 
       <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef scope="col">Description</th>
-        <td mat-cell *matCellDef="let product">{{ product.description }}</td>
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let p">{{ p.description }}</td>
       </ng-container>
 
       <ng-container matColumnDef="price">
-        <th mat-header-cell *matHeaderCellDef scope="col">Price</th>
-        <td mat-cell *matCellDef="let product">{{ product.price | number:'1.2-2' }} €</td>
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let p">{{ p.price | number:'1.2-2' }} RON</td>
       </ng-container>
 
       <ng-container matColumnDef="stock">
-        <th mat-header-cell *matHeaderCellDef scope="col">Stock</th>
-        <td mat-cell *matCellDef="let product">{{ product.stock }}</td>
+        <th mat-header-cell *matHeaderCellDef>Stock</th>
+        <td mat-cell *matCellDef="let p">
+          <span [class]="p.stock > 0 ? 'stock-available' : 'stock-empty'">{{ p.stock }}</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef scope="col">Actions</th>
-        <td mat-cell *matCellDef="let product">
-          <button
-            mat-icon-button
-            (click)="openEditDialog(product)"
-            [attr.aria-label]="'Edit ' + product.name"
-            [disabled]="isLoading()"
-          >
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let p">
+          <button mat-icon-button (click)="openEditDialog(p)"
+            [attr.aria-label]="'Edit ' + p.name" [disabled]="isLoading()">
             <mat-icon>edit</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            (click)="openDeleteDialog(product)"
-            [attr.aria-label]="'Delete ' + product.name"
-            class="delete-btn"
-            [disabled]="isLoading()"
-          >
+          <button mat-icon-button (click)="openDeleteDialog(p)"
+            [attr.aria-label]="'Delete ' + p.name"
+            class="delete-btn" [disabled]="isLoading()">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -133,7 +89,6 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
       <tr class="mat-mdc-row" *matNoDataRow>
         <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
           No products found.
@@ -141,4 +96,4 @@
       </tr>
     </table>
   </div>
-</main>
+</div>

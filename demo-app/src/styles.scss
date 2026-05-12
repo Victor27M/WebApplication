@@ -14,44 +14,58 @@ html {
   ));
 }
 
-// ── Obsidian design tokens ─────────────────────────────────────────────────
+// ── DARK obsidian (default — applied to admin area) ────────────────────────
 :root {
-  --obs-bg:          #080808;
-  --obs-surface:     #111111;
-  --obs-surface-2:   #161616;
-  --obs-surface-3:   #1e1e1e;
-  --obs-border:      #1e1e1e;
-  --obs-border-2:    #2a2a2a;
-  --obs-text-1:      #ffffff;
-  --obs-text-2:      #888888;
-  --obs-text-3:      #444444;
+  --obs-bg:        #080808;
+  --obs-surface:   #111111;
+  --obs-surface-2: #161616;
+  --obs-surface-3: #1e1e1e;
+  --obs-border:    #1e1e1e;
+  --obs-border-2:  #2a2a2a;
+  --obs-text-1:    #ffffff;
+  --obs-text-2:    #888888;
+  --obs-text-3:    #444444;
   --obs-sidebar-w-collapsed: 56px;
   --obs-sidebar-w-expanded:  188px;
-  --obs-radius-sm:  10px;
-  --obs-radius-md:  14px;
-  --obs-radius-lg:  20px;
+  --obs-radius-sm: 10px;
+  --obs-radius-md: 14px;
+  --obs-radius-lg: 20px;
 
-  // Status colours — only chromatic elements in the UI
-  --status-pending-bg:    #2a1a00;
-  --status-pending-fg:    #f59e0b;
-  --status-confirmed-bg:  #0a1a3a;
-  --status-confirmed-fg:  #60a5fa;
-  --status-shipped-bg:    #1a0a3a;
-  --status-shipped-fg:    #a78bfa;
-  --status-delivered-bg:  #052914;
-  --status-delivered-fg:  #16a34a;
-  --status-cancelled-bg:  #2a0808;
-  --status-cancelled-fg:  #f87171;
-  --status-unpaid-bg:     #1a1a1a;
-  --status-unpaid-fg:     #888888;
-  --status-paid-bg:       #052914;
-  --status-paid-fg:       #16a34a;
-  --status-failed-bg:     #2a0808;
-  --status-failed-fg:     #f87171;
-  --status-refunded-bg:   #1a1a2a;
-  --status-refunded-fg:   #818cf8;
-  --status-processing-bg: #2a1a00;
-  --status-processing-fg: #f59e0b;
+  --status-pending-bg:    #2a1a00; --status-pending-fg:    #f59e0b;
+  --status-confirmed-bg:  #0a1a3a; --status-confirmed-fg:  #60a5fa;
+  --status-shipped-bg:    #1a0a3a; --status-shipped-fg:    #a78bfa;
+  --status-delivered-bg:  #052914; --status-delivered-fg:  #16a34a;
+  --status-cancelled-bg:  #2a0808; --status-cancelled-fg:  #f87171;
+  --status-unpaid-bg:     #1a1a1a; --status-unpaid-fg:     #888888;
+  --status-paid-bg:       #052914; --status-paid-fg:       #16a34a;
+  --status-failed-bg:     #2a0808; --status-failed-fg:     #f87171;
+  --status-refunded-bg:   #1a1a2a; --status-refunded-fg:   #818cf8;
+  --status-processing-bg: #2a1a00; --status-processing-fg: #f59e0b;
+}
+
+// ── LIGHT theme override — applied to customer area via .theme-light ───────
+.theme-light {
+  --obs-bg:        #fafafa;
+  --obs-surface:   #ffffff;
+  --obs-surface-2: #f5f5f5;
+  --obs-surface-3: #ebebeb;
+  --obs-border:    #e8e8e8;
+  --obs-border-2:  #d4d4d4;
+  --obs-text-1:    #1a1a1a;
+  --obs-text-2:    #666666;
+  --obs-text-3:    #999999;
+
+  // Lighter pastels for status backgrounds in light mode
+  --status-pending-bg:    #fef3c7; --status-pending-fg:    #b45309;
+  --status-confirmed-bg:  #dbeafe; --status-confirmed-fg:  #1d4ed8;
+  --status-shipped-bg:    #ede9fe; --status-shipped-fg:    #6d28d9;
+  --status-delivered-bg:  #d1fae5; --status-delivered-fg:  #047857;
+  --status-cancelled-bg:  #fee2e2; --status-cancelled-fg:  #b91c1c;
+  --status-unpaid-bg:     #f3f4f6; --status-unpaid-fg:     #6b7280;
+  --status-paid-bg:       #d1fae5; --status-paid-fg:       #047857;
+  --status-failed-bg:     #fee2e2; --status-failed-fg:     #b91c1c;
+  --status-refunded-bg:   #e0e7ff; --status-refunded-fg:   #4338ca;
+  --status-processing-bg: #fef3c7; --status-processing-fg: #b45309;
 }
 
 // ── Base reset ─────────────────────────────────────────────────────────────
@@ -60,10 +74,9 @@ html {
 body {
   margin: 0;
   height: 100%;
-  background-color: var(--obs-bg);
+  background: var(--obs-bg);
   color: var(--obs-text-1);
   font-family: 'Roboto', sans-serif;
-  color-scheme: dark;
 }
 
 // ── Status badges ──────────────────────────────────────────────────────────
@@ -93,13 +106,22 @@ body {
 .role-admin    { background: #1a1a3a; color: #818cf8; }
 .role-customer { background: #0a2a1a; color: #4ade80; }
 
-// ── Product chip ───────────────────────────────────────────────────────────
-.products-cell  { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; }
-.product-chip   { display: inline-block; background: #1a1a3a; color: #818cf8; padding: 2px 8px; border-radius: 99px; font-size: 0.72rem; font-weight: 500; }
+.theme-light .role-admin    { background: #e0e7ff; color: #4338ca; }
+.theme-light .role-customer { background: #d1fae5; color: #047857; }
+
+// ── Product chips ──────────────────────────────────────────────────────────
+.products-cell { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; }
+.product-chip  {
+  display: inline-block; padding: 2px 8px; border-radius: 99px;
+  font-size: 0.72rem; font-weight: 500;
+  background: #1a1a3a; color: #818cf8;
+}
+.theme-light .product-chip { background: #e0e7ff; color: #4338ca; }
 
 // ── Stock states ───────────────────────────────────────────────────────────
 .stock-available { color: #16a34a; font-weight: 500; }
 .stock-empty     { color: #f87171; font-weight: 500; }
+.theme-light .stock-empty { color: #b91c1c; }
 
 // ── Shared page layout ─────────────────────────────────────────────────────
 .page-content {
@@ -108,25 +130,19 @@ body {
   padding: 28px;
 }
 
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
+.page-header   { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
 .page-title    { margin: 0 0 4px; font-size: 1.25rem; font-weight: 500; color: var(--obs-text-1); }
 .page-subtitle { margin: 0; font-size: 13px; color: var(--obs-text-3); }
 
-// ── Alerts ─────────────────────────────────────────────────────────────────
+// ── Alerts & status text ───────────────────────────────────────────────────
 .error-alert {
   display: flex; align-items: center; gap: 8px;
   padding: 12px 16px; margin-bottom: 20px;
-  background: #2a0808; border: 0.5px solid #f87171;
+  background: var(--status-failed-bg);
+  border: 0.5px solid var(--status-failed-fg);
   border-radius: var(--obs-radius-md);
-  color: #f87171; font-size: 13px;
+  color: var(--status-failed-fg);
+  font-size: 13px;
 }
 
 .loading-status { margin: 0 0 12px; color: var(--obs-text-2); font-size: 13px; }
@@ -159,9 +175,9 @@ body {
 
 .mat-mdc-cell   { color: var(--obs-text-1) !important; font-size: 13px !important; }
 .no-data-cell   { padding: 32px; text-align: center; color: var(--obs-text-3); font-size: 13px; }
-.delete-btn     { color: #f87171 !important; }
+.delete-btn     { color: var(--status-failed-fg) !important; }
 
-// ── Angular Material dark overrides ────────────────────────────────────────
+// ── Mat dialog dark/light ──────────────────────────────────────────────────
 .mat-mdc-dialog-surface {
   background: var(--obs-surface) !important;
   border: 0.5px solid var(--obs-border-2) !important;
@@ -175,7 +191,8 @@ body {
   .mat-mdc-select-value { color: var(--obs-text-1) !important; }
 }
 
-.mat-mdc-raised-button.mat-primary {
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
   background: var(--obs-text-1) !important;
   color: var(--obs-bg) !important;
   border-radius: var(--obs-radius-sm) !important;
@@ -189,5 +206,5 @@ body {
 }
 
 // ── Filters row ────────────────────────────────────────────────────────────
-.filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.filters      { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .filter-field { flex: 1 1 180px; }

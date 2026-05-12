@@ -5,13 +5,13 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatToolbar } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
-import { Order, CreateOrderDto } from '../../models/order.model';
+import { CreateOrderDto, Order } from '../../models/order.model';
 import { Product } from '../../models/product.model';
 import { OrderService } from '../../services/order.service';
 import { ProductService } from '../../services/product.service';
@@ -24,23 +24,24 @@ import {
 
 @Component({
   selector: 'app-customer-orders-page',
-  imports: [MatToolbar, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule],
+  standalone: true,
+  imports: [MatButtonModule, MatIconModule, MatTableModule, MatDialogModule, DatePipe],
   templateUrl: './customer-orders-page.component.html',
   styleUrl: './customer-orders-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerOrdersPageComponent implements OnInit {
-  private readonly orderService = inject(OrderService);
+  private readonly orderService   = inject(OrderService);
   private readonly productService = inject(ProductService);
-  private readonly loginStore = inject(LoginStore);
-  private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
+  private readonly loginStore     = inject(LoginStore);
+  private readonly router         = inject(Router);
+  private readonly dialog         = inject(MatDialog);
 
-  protected readonly orders = signal<Order[]>([]);
-  protected readonly products = signal<Product[]>([]);
+  protected readonly orders    = signal<Order[]>([]);
+  protected readonly products  = signal<Product[]>([]);
   protected readonly isLoading = signal(false);
-  protected readonly hasError = signal(false);
-  protected readonly displayedColumns = ['products', 'destination', 'status', 'orderDate'];
+  protected readonly hasError  = signal(false);
+  protected readonly displayedColumns = ['products', 'destination', 'status', 'paymentStatus', 'orderDate'];
 
   ngOnInit(): void {
     const personId = this.loginStore.personId();
@@ -48,19 +49,14 @@ export class CustomerOrdersPageComponent implements OnInit {
 
     this.isLoading.set(true);
     this.orderService.getByPersonId(personId).subscribe({
-      next: (data) => {
-        this.orders.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.hasError.set(true);
-        this.isLoading.set(false);
-      },
+      next: (data) => { this.orders.set(data); this.isLoading.set(false); },
+      error: () => { this.hasError.set(true); this.isLoading.set(false); },
     });
+    this.productService.getAll().subscribe({ next: (data) => this.products.set(data) });
+  }
 
-    this.productService.getAll().subscribe({
-      next: (data) => this.products.set(data),
-    });
+  protected statusClass(status: string): string {
+    return `status-badge status-${(status ?? '').toLowerCase()}`;
   }
 
   protected openCreateDialog(): void {
@@ -90,26 +86,9 @@ export class CustomerOrdersPageComponent implements OnInit {
           status: 'PENDING',
         };
         this.orderService.create(dto).subscribe({
-          next: (created) => this.orders.update((list) => [...list, created]),
+          next: (created) => this.orders.update(list => [...list, created]),
           error: () => this.hasError.set(true),
         });
       });
-  }
-
-  protected formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('ro-RO');
-  }
-
-  protected goBack(): void {
-    void this.router.navigate(['/customer']);
-  }
-
-  protected goToProducts(): void {
-    void this.router.navigate(['/customer/products']);
-  }
-
-  protected logout(): void {
-    this.loginStore.logout();
-    void this.router.navigate(['/login']);
   }
 }

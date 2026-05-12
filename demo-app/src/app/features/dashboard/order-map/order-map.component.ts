@@ -110,7 +110,7 @@ export class OrderMapComponent implements AfterViewInit, OnDestroy {
           <div class="pin-tip-title">${point.destination}</div>
           <div class="pin-tip-count">${point.count} order${point.count !== 1 ? 's' : ''}</div>
           ${Object.entries(point.statuses)
-        .map(([status, count]) => `
+            .map(([status, count]) => `
               <div class="pin-tip-row">
                 <span class="pin-tip-dot" style="background:${STATUS_COLOURS[status] ?? '#888'}"></span>
                 <span>${status}</span>

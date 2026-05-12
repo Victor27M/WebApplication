@@ -10,19 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * Orchestrates payment state transitions using the State pattern.
- *
- * Design decision: PaymentService acts as the context holder. It resolves
- * the correct PaymentState based on the order's current paymentStatus and
- * delegates the operation to that state. This keeps each state's logic
- * isolated and makes adding new states trivial.
- */
 @Service
 @AllArgsConstructor
 public class PaymentService {
 
-    private final OrderRepository orderRepository;
+    private final OrderRepository     orderRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
     @Transactional
     public Order processPayment(UUID orderId) {
@@ -32,7 +25,9 @@ public class PaymentService {
 
         PaymentState state = resolveState(order.getPaymentStatus());
         Order updated = state.processPayment(order);
-        return orderRepository.save(updated);
+        Order saved   = orderRepository.save(updated);
+        orderEventPublisher.publish(saved);   // ← WebSocket broadcast
+        return saved;
     }
 
     @Transactional
@@ -43,13 +38,11 @@ public class PaymentService {
 
         PaymentState state = resolveState(order.getPaymentStatus());
         Order updated = state.refund(order);
-        return orderRepository.save(updated);
+        Order saved   = orderRepository.save(updated);
+        orderEventPublisher.publish(saved);   // ← WebSocket broadcast
+        return saved;
     }
 
-    /**
-     * Factory method — maps a PaymentStatus to its corresponding state object.
-     * Adding a new status only requires a new state class and one line here.
-     */
     private PaymentState resolveState(PaymentStatus status) {
         return switch (status) {
             case UNPAID     -> new UnpaidPaymentState();

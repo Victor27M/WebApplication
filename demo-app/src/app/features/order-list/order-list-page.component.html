@@ -74,16 +74,16 @@
           <!-- Pay button — visible for UNPAID or FAILED -->
           @if (canPay(order)) {
             <button mat-icon-button (click)="pay(order)"
-                    [attr.aria-label]="'Pay order'" matTooltip="Process payment"
-                    [disabled]="isLoading()">
+              [attr.aria-label]="'Pay order'" matTooltip="Process payment"
+              [disabled]="isLoading()">
               <mat-icon class="pay-icon">payment</mat-icon>
             </button>
           }
           <!-- Refund button — visible for PAID -->
           @if (canRefund(order)) {
             <button mat-icon-button (click)="refund(order)"
-                    [attr.aria-label]="'Refund order'" matTooltip="Issue refund"
-                    [disabled]="isLoading()">
+              [attr.aria-label]="'Refund order'" matTooltip="Issue refund"
+              [disabled]="isLoading()">
               <mat-icon class="refund-icon">currency_exchange</mat-icon>
             </button>
           }
@@ -91,7 +91,7 @@
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button (click)="openDeleteDialog(order)"
-                  class="delete-btn" [disabled]="isLoading()">
+            class="delete-btn" [disabled]="isLoading()">
             <mat-icon>delete</mat-icon>
           </button>
         </td>

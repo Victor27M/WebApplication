@@ -29,7 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT COUNT(DISTINCT o.person.id) FROM Order o")
     long countDistinctCustomers();
 
-    // Revenue by day (last 90 days)
     @Query(value = """
         SELECT CAST(o.order_date AS date) AS day,
                SUM(oi.quantity * p.price)
@@ -43,7 +42,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
         """, nativeQuery = true)
     List<Object[]> revenueByDay();
 
-    // Revenue by ISO week (last 52 weeks)
     @Query(value = """
         SELECT TO_CHAR(DATE_TRUNC('week', o.order_date), 'IYYY-"W"IW') AS week,
                SUM(oi.quantity * p.price)
@@ -57,7 +55,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
         """, nativeQuery = true)
     List<Object[]> revenueByWeek();
 
-    // Revenue by month (last 12 months)
     @Query(value = """
         SELECT TO_CHAR(DATE_TRUNC('month', o.order_date), 'YYYY-MM') AS month,
                SUM(oi.quantity * p.price)
@@ -71,11 +68,9 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
         """, nativeQuery = true)
     List<Object[]> revenueByMonth();
 
-    // Status breakdown
     @Query("SELECT o.status, COUNT(o) FROM Order o GROUP BY o.status")
     List<Object[]> countByStatusGrouped();
 
-    // Top 5 products by units sold and revenue
     @Query(value = """
         SELECT p.name,
                SUM(oi.quantity)           AS units_sold,
@@ -90,8 +85,15 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
         """, nativeQuery = true)
     List<Object[]> topProducts();
 
-    // Recent 10 orders for dashboard feed
     List<Order> findTop10ByOrderByOrderDateDesc();
 
+    // ── Map data ──────────────────────────────────────────────────────────────
+    @Query("""
+        SELECT o.destination, o.status, COUNT(o)
+        FROM Order o
+        WHERE o.destination IS NOT NULL
+        GROUP BY o.destination, o.status
+        ORDER BY o.destination
+        """)
     List<Object[]> countOrdersByDestinationAndStatus();
 }

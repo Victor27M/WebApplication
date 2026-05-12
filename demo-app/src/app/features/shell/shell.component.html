@@ -1,0 +1,60 @@
+<div class="shell" [class.light]="!isDark()">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────── -->
+  <aside class="sidebar" role="navigation" aria-label="Main navigation">
+
+    <!-- Logo -->
+    <div class="sidebar-logo" aria-hidden="true">
+      <mat-icon>store</mat-icon>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          [attr.aria-label]="item.label"
+        >
+          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- Bottom actions -->
+    <div class="sidebar-footer">
+      <button
+        class="nav-item"
+        (click)="toggleTheme()"
+        [matTooltip]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+        matTooltipPosition="right"
+        [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        <mat-icon class="nav-icon">{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        <span class="nav-label">{{ isDark() ? 'Light mode' : 'Dark mode' }}</span>
+      </button>
+
+      <button
+        class="nav-item logout"
+        (click)="logout()"
+        matTooltip="Log out"
+        matTooltipPosition="right"
+        aria-label="Log out"
+      >
+        <mat-icon class="nav-icon">logout</mat-icon>
+        <span class="nav-label">Log out</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ── Main content ─────────────────────────────────────────────────── -->
+  <main class="main-content" role="main">
+    <router-outlet />
+  </main>
+
+</div>

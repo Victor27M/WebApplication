@@ -1,0 +1,297 @@
+.dashboard {
+  padding: 24px 28px;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.dash-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.dash-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  margin: 0;
+}
+
+.dash-date {
+  font-size: 12px;
+  color: var(--obs-text-3);
+}
+
+// ── KPI grid ──────────────────────────────────────────────────────────────────
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.kpi-card {
+  background: var(--obs-surface);
+  border: 0.5px solid var(--obs-border);
+  border-radius: var(--obs-radius-lg);
+  padding: 16px 18px;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--obs-text-3);
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-value {
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  margin: 0 0 4px;
+  line-height: 1;
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--obs-text-3);
+  margin: 0 0 10px;
+}
+
+.kpi-spark {
+  height: 30px;
+}
+
+// ── Middle row ────────────────────────────────────────────────────────────────
+.mid-grid {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 12px;
+  min-height: 0;
+}
+
+// ── Bottom row ────────────────────────────────────────────────────────────────
+.bot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+// ── Shared card ───────────────────────────────────────────────────────────────
+.card {
+  background: var(--obs-surface);
+  border: 0.5px solid var(--obs-border);
+  border-radius: var(--obs-radius-lg);
+  padding: 18px 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  margin: 0;
+}
+
+// ── Period tabs ───────────────────────────────────────────────────────────────
+.period-tabs {
+  display: flex;
+  gap: 3px;
+}
+
+.ptab {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  border: 0.5px solid transparent;
+  background: transparent;
+  color: var(--obs-text-3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.13s;
+
+  &:hover {
+    color: var(--obs-text-1);
+  }
+
+  &.active {
+    color: var(--obs-text-1);
+    background: var(--obs-surface-3);
+    border-color: var(--obs-border-2);
+  }
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+.chart-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-area {
+  flex: 1;
+  min-height: 140px;
+}
+
+// ── Status breakdown ──────────────────────────────────────────────────────────
+.status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--obs-text-1);
+}
+
+// ── Recent orders ─────────────────────────────────────────────────────────────
+.orders-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.order-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 0.5px solid var(--obs-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.order-person {
+  font-size: 13px;
+  color: var(--obs-text-1);
+  flex: 1;
+}
+
+.order-amount {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  white-space: nowrap;
+}
+
+// ── Map placeholder ───────────────────────────────────────────────────────────
+.map-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-placeholder {
+  flex: 1;
+  min-height: 180px;
+  background: #0d0d0d;
+  border-radius: var(--obs-radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.map-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--obs-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--obs-border) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.map-pins {
+  position: absolute;
+  inset: 0;
+}
+
+.pin {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+
+  &.delivered { background: var(--status-delivered-fg); }
+  &.shipped   { background: var(--status-shipped-fg); }
+  &.pending   { background: var(--status-pending-fg); }
+  &.confirmed { background: var(--status-confirmed-fg); }
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 0.5px solid var(--obs-border-2);
+  border-radius: var(--obs-radius-md);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--obs-text-2);
+}
+
+.legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+
+  &.delivered { background: var(--status-delivered-fg); }
+  &.shipped   { background: var(--status-shipped-fg); }
+  &.pending   { background: var(--status-pending-fg); }
+}
+
+.coming-soon-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--obs-surface-3);
+  color: var(--obs-text-3);
+}
+
+// ── Empty states ──────────────────────────────────────────────────────────────
+.empty-state {
+  font-size: 12px;
+  color: var(--obs-text-3);
+  text-align: center;
+  padding: 16px 0;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .kpi-grid  { grid-template-columns: repeat(2, 1fr); }
+  .mid-grid  { grid-template-columns: 1fr; }
+  .bot-grid  { grid-template-columns: 1fr; }
+}

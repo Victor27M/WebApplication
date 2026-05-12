@@ -1,23 +1,28 @@
-<mat-toolbar color="primary">
-  <span>Customer Portal</span>
-  <span style="flex: 1 1 auto;" aria-hidden="true"></span>
-  <button mat-button type="button" (click)="logout()">
-    <mat-icon aria-hidden="true">logout</mat-icon>
-    Logout
-  </button>
-</mat-toolbar>
+<div class="page-content">
+  <header class="hero">
+    <h1 class="hero-title">Welcome back</h1>
+    <p class="hero-subtitle">Browse our products or check your order history.</p>
+  </header>
 
-<main class="content">
-  <h1>Welcome!</h1>
-  <p>You are logged in as a <strong>Customer</strong>.</p>
-  <div class="actions">
-    <button mat-flat-button (click)="goToOrders()">
-      <mat-icon>shopping_cart</mat-icon>
-      My Orders
+  <section class="action-grid">
+
+    <button class="action-card" (click)="goToProducts()" aria-label="Browse products">
+      <mat-icon class="action-icon">storefront</mat-icon>
+      <div class="action-text">
+        <h2 class="action-title">Browse products</h2>
+        <p class="action-subtitle">Explore our catalogue and place a new order</p>
+      </div>
+      <mat-icon class="action-arrow">arrow_forward</mat-icon>
     </button>
-    <button mat-flat-button (click)="goToProducts()">
-      <mat-icon>inventory_2</mat-icon>
-      Browse Products
+
+    <button class="action-card" (click)="goToOrders()" aria-label="View my orders">
+      <mat-icon class="action-icon">receipt_long</mat-icon>
+      <div class="action-text">
+        <h2 class="action-title">My orders</h2>
+        <p class="action-subtitle">Track current and past orders</p>
+      </div>
+      <mat-icon class="action-arrow">arrow_forward</mat-icon>
     </button>
-  </div>
-</main>
+
+  </section>
+</div>

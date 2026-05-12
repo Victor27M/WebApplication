@@ -1,16 +1,38 @@
-.content {
-  max-width: 1000px;
-  margin: 32px auto;
-  padding: 0 16px;
+.page-content {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--obs-text-1);
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--obs-text-3);
 }
 
 .filters {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 16px;
 }
 
 .filter-field {
-  flex: 1 1 200px;
+  flex: 1 1 180px;
 }
