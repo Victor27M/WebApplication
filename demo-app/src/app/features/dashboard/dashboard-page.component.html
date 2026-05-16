@@ -1,11 +1,29 @@
 <div class="dashboard">
 
-  <!-- ── Page header ────────────────────────────────────────────────────── -->
+  <!-- ── Page header with date range ────────────────────────────────────── -->
   <header class="dash-header">
     <h1 class="dash-title">Dashboard</h1>
-    <time class="dash-date" [attr.datetime]="today.toISOString()">
-      {{ today | date:'EEEE, d MMMM y' }}
-    </time>
+    <div class="date-range-bar">
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>From</mat-label>
+        <input matInput [matDatepicker]="pickerFrom"
+          [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
+        <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFrom></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>To</mat-label>
+        <input matInput [matDatepicker]="pickerTo"
+          [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
+        <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+        <mat-datepicker #pickerTo></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-flat-button class="apply-btn" (click)="applyDateRange()">
+        Apply
+      </button>
+    </div>
   </header>
 
   <!-- ── KPI cards ──────────────────────────────────────────────────────── -->
@@ -26,7 +44,7 @@
           @if (sparklineArea()) {
             <path [attr.d]="sparklineArea()" fill="url(#g-rev)"/>
             <path [attr.d]="sparklinePath()" fill="none" stroke="#fff"
-                  stroke-width="1.5" stroke-linecap="round"/>
+              stroke-width="1.5" stroke-linecap="round"/>
           }
         </svg>
       </div>
@@ -35,11 +53,11 @@
     <article class="kpi-card">
       <p class="kpi-label">Total orders</p>
       <p class="kpi-value">{{ kpi()?.totalOrders ?? '—' }}</p>
-      <p class="kpi-sub">Last 12 months</p>
+      <p class="kpi-sub">In selected range</p>
       <div class="kpi-spark" aria-hidden="true">
         <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
           <path d="M0 24 C10 22 20 18 30 16 C40 14 50 12 60 8 C68 5 74 4 80 3"
-                fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+            fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </div>
     </article>
@@ -51,8 +69,8 @@
       <div class="kpi-spark" aria-hidden="true">
         <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
           <path d="M0 18 C12 16 24 20 36 16 C48 12 60 14 80 10"
-                fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round"
-                stroke-dasharray="4 2"/>
+            fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round"
+            stroke-dasharray="4 2"/>
         </svg>
       </div>
     </article>
@@ -84,7 +102,7 @@
           <h2 class="card-title">Revenue + forecast</h2>
           @if (forecastModel()) {
             <span class="model-tag"
-                  [title]="'AIC: ' + forecastModel()?.aic + ' • RMSE: ' + forecastModel()?.rmse">
+              [title]="'AIC: ' + forecastModel()?.aic + ' • RMSE: ' + forecastModel()?.rmse">
               ARIMA{{ forecastModel()?.order }}
             </span>
           }
@@ -103,7 +121,7 @@
 
       <div class="chart-area">
         <svg viewBox="0 0 320 130" width="100%" height="100%"
-             preserveAspectRatio="none" role="img">
+          preserveAspectRatio="none" role="img">
           <title>Revenue with forecast</title>
           <defs>
             <linearGradient id="cg-main" x1="0" y1="0" x2="0" y2="1">
@@ -111,30 +129,25 @@
               <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
             </linearGradient>
           </defs>
-          <!-- Grid lines -->
           <line x1="0" y1="32"  x2="320" y2="32"  stroke="#1a1a1a" stroke-width="0.5"/>
           <line x1="0" y1="64"  x2="320" y2="64"  stroke="#1a1a1a" stroke-width="0.5"/>
           <line x1="0" y1="96"  x2="320" y2="96"  stroke="#1a1a1a" stroke-width="0.5"/>
-          <!-- Historical area + line -->
           @if (chartPath().area) {
             <path [attr.d]="chartPath().area" fill="url(#cg-main)"/>
             <path [attr.d]="chartPath().line" fill="none"
-                  stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+              stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
           }
-          <!-- Forecast divider -->
           <line x1="230" y1="0" x2="230" y2="130"
-                stroke="#2a2a2a" stroke-width="0.5" stroke-dasharray="3 3"/>
+            stroke="#2a2a2a" stroke-width="0.5" stroke-dasharray="3 3"/>
           <text x="232" y="11" font-size="7" fill="#444"
-                font-family="Roboto, sans-serif">forecast →</text>
-          <!-- Confidence band -->
+            font-family="Roboto, sans-serif">forecast →</text>
           @if (chartPath().band) {
             <path [attr.d]="chartPath().band" fill="#fff" fill-opacity="0.06"/>
           }
-          <!-- Forecast line -->
           @if (chartPath().fLine) {
             <path [attr.d]="chartPath().fLine" fill="none"
-                  stroke="#aaa" stroke-width="1.5"
-                  stroke-dasharray="4 3" stroke-linecap="round"/>
+              stroke="#aaa" stroke-width="1.5"
+              stroke-dasharray="4 3" stroke-linecap="round"/>
           }
         </svg>
       </div>

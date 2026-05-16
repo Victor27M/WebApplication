@@ -1,9 +1,6 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
+  ChangeDetectionStrategy, Component,
+  inject, OnInit, signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,10 +17,14 @@ import {
   OrderFormDialogData,
   OrderFormDialogResult,
 } from '../../components/order-form-dialog/order-form-dialog.component';
+import { OrderStatusStepsComponent } from '../order-status-steps/order-status-steps.component';
 
 @Component({
   selector: 'app-customer-orders-page',
-  imports: [MatButtonModule, MatIconModule, MatTableModule, MatDialogModule, DatePipe],
+  imports: [
+    MatButtonModule, MatIconModule, MatTableModule,
+    MatDialogModule, DatePipe, OrderStatusStepsComponent,
+  ],
   templateUrl: './customer-orders-page.component.html',
   styleUrl: './customer-orders-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,7 +41,7 @@ export class CustomerOrdersPageComponent implements OnInit {
   protected readonly hasError  = signal(false);
 
   protected readonly displayedColumns = [
-    'products', 'destination', 'status', 'paymentStatus', 'orderDate',
+    'products', 'destination', 'tracking', 'paymentStatus', 'orderDate',
   ];
 
   ngOnInit(): void {
@@ -55,7 +56,6 @@ export class CustomerOrdersPageComponent implements OnInit {
     this.productService.getAll().subscribe({ next: (data) => this.products.set(data) });
   }
 
-  // Explicit helper so template gets a clean OrderItem[] — avoids type-checker confusion
   protected getItems(order: Order): OrderItem[] {
     return order.items ?? [];
   }

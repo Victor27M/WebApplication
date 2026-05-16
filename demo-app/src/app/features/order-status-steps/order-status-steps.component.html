@@ -1,0 +1,22 @@
+@if (isCancelled()) {
+  <div class="cancelled-state">
+    <div class="cancel-icon">✕</div>
+    <span class="cancel-label">Cancelled</span>
+  </div>
+} @else {
+  <div class="steps-track">
+    @for (step of steps; track step; let i = $index) {
+      @if (i > 0) {
+        <div class="connector" [class]="stepState(i) === 'future' ? 'connector-future' : 'connector-done'"></div>
+      }
+      <div class="step" [class]="'step-' + stepState(i)">
+        <div class="step-dot">
+          @if (stepState(i) === 'done') {
+            <span class="check">✓</span>
+          }
+        </div>
+        <span class="step-label">{{ step | lowercase }}</span>
+      </div>
+    }
+  </div>
+}

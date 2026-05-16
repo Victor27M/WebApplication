@@ -21,13 +21,9 @@ public class ForecastService {
                 .build();
     }
 
-    /**
-     * Fetches recent daily revenue, sends it to the Python microservice,
-     * and returns the prediction payload. Falls back gracefully if Python
-     * service is unavailable.
-     */
     public Map<String, Object> getForecast(int days) {
-        List<RevenuePointDTO> history = analyticsService.getRevenue("daily");
+        // Pass null dates — service defaults to last 12 months of daily data
+        List<RevenuePointDTO> history = analyticsService.getRevenue("daily", null, null);
 
         if (history.size() < 3) {
             return Map.of("error", "Not enough historical data for forecasting.");
@@ -38,14 +34,15 @@ public class ForecastService {
         body.put("days", days);
 
         try {
-            Map<?, ?> response = webClient.post()
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = webClient.post()
                     .uri("/predict")
                     .bodyValue(body)
                     .retrieve()
                     .bodyToMono(Map.class)
                     .block();
 
-            return response != null ? (Map<String, Object>) response
+            return response != null ? response
                     : Map.of("error", "Empty response from forecasting service.");
         } catch (Exception e) {
             return Map.of(

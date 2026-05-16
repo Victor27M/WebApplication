@@ -6,6 +6,8 @@ import com.victor.demo.repository.OrderRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,38 +16,40 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AnalyticsService {
 
-    private final OrderRepository orderRepository;
+    private final OrderRepository  orderRepository;
     private final GeocodingService geocodingService;
 
     // ── KPI ────────────────────────────────────────────────────────────────────
 
-    public KpiDTO getKpi() {
-        double totalRevenue   = calcTotalRevenue();
-        long   totalOrders    = orderRepository.count();
-        long   paidOrders     = orderRepository.countByPaymentStatus(PaymentStatus.PAID);
-        double avgOrderValue  = paidOrders > 0 ? totalRevenue / paidOrders : 0.0;
-        long   totalCustomers = orderRepository.countDistinctCustomers();
+    public KpiDTO getKpi(LocalDate from, LocalDate to) {
+        LocalDateTime start = resolveFrom(from).atStartOfDay();
+        LocalDateTime end   = resolveTo(to).plusDays(1).atStartOfDay();
+
+        Double revenue      = orderRepository.sumRevenueBetween(start, end);
+        double totalRevenue = revenue != null ? revenue : 0.0;
+        long   totalOrders  = orderRepository.countByOrderDateBetween(start, end);
+        long   paidOrders   = orderRepository.countPaidBetween(start, end);
+        double avgOrder     = paidOrders > 0 ? totalRevenue / paidOrders : 0.0;
+        long   customers    = orderRepository.countDistinctCustomersBetween(start, end);
 
         return new KpiDTO(
                 Math.round(totalRevenue * 100.0) / 100.0,
                 totalOrders,
-                Math.round(avgOrderValue * 100.0) / 100.0,
-                totalCustomers
+                Math.round(avgOrder * 100.0) / 100.0,
+                customers
         );
-    }
-
-    private double calcTotalRevenue() {
-        Double result = orderRepository.sumRevenueForPaidOrders();
-        return result != null ? result : 0.0;
     }
 
     // ── Revenue over time ─────────────────────────────────────────────────────
 
-    public List<RevenuePointDTO> getRevenue(String period) {
+    public List<RevenuePointDTO> getRevenue(String period, LocalDate from, LocalDate to) {
+        LocalDateTime start = resolveFrom(from).atStartOfDay();
+        LocalDateTime end   = resolveTo(to).plusDays(1).atStartOfDay();
+
         List<Object[]> rows = switch (period) {
-            case "daily"   -> orderRepository.revenueByDay();
-            case "monthly" -> orderRepository.revenueByMonth();
-            default        -> orderRepository.revenueByWeek();
+            case "daily"   -> orderRepository.revenueByDayBetween(start, end);
+            case "monthly" -> orderRepository.revenueByMonthBetween(start, end);
+            default        -> orderRepository.revenueByWeekBetween(start, end);
         };
 
         return rows.stream()
@@ -102,18 +106,10 @@ public class AnalyticsService {
 
     // ── Map data ──────────────────────────────────────────────────────────────
 
-    /**
-     * Groups orders by destination, geocodes each unique destination using
-     * OpenRouteService, and returns lat/lng points for the dashboard map.
-     * Destinations that fail to geocode are silently skipped.
-     */
     public List<MapPointDTO> getMapData() {
-        // Group orders by destination; count totals + breakdown per status
         List<Object[]> rows = orderRepository.countOrdersByDestinationAndStatus();
 
-        // Map<destination, MapPointDto>
-        Map<String, MapPointDTO> grouped = new LinkedHashMap<>();
-
+        Map<String, MapPointDTO> map = new LinkedHashMap<>();
         for (Object[] row : rows) {
             String destination = row[0] != null ? row[0].toString() : null;
             String status      = row[1] != null ? row[1].toString() : "UNKNOWN";
@@ -121,29 +117,32 @@ public class AnalyticsService {
 
             if (destination == null || destination.isBlank()) continue;
 
-            MapPointDTO point = grouped.computeIfAbsent(destination, d -> {
-                MapPointDTO p = new MapPointDTO();
-                p.setDestination(d);
-                p.setStatuses(new LinkedHashMap<>());
-                p.setCount(0);
-                return p;
+            map.computeIfAbsent(destination, d -> {
+                var coords = geocodingService.geocode(d);
+                if (coords.isEmpty()) return null;
+                var c = coords.get();
+                return new MapPointDTO(c.getLat(), c.getLng(), d, 0, new LinkedHashMap<>());
             });
+
+            MapPointDTO point = map.get(destination);
+            if (point == null) continue;
 
             point.setCount(point.getCount() + count);
             point.getStatuses().merge(status, count, Long::sum);
         }
 
-        // Geocode each unique destination
-        return grouped.values().stream()
-                .map(point -> {
-                    Optional<GeocodingService.Coords> coords =
-                            geocodingService.geocode(point.getDestination());
-                    if (coords.isEmpty()) return null;
-                    point.setLat(coords.get().getLat());
-                    point.setLng(coords.get().getLng());
-                    return point;
-                })
+        return map.values().stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+
+    private LocalDate resolveFrom(LocalDate from) {
+        return from != null ? from : LocalDate.now().minusMonths(12);
+    }
+
+    private LocalDate resolveTo(LocalDate to) {
+        return to != null ? to : LocalDate.now();
     }
 }

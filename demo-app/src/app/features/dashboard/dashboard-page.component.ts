@@ -6,9 +6,15 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { DecimalPipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 import { OrderMapComponent } from './order-map/order-map.component';
 import { DeliveryCalendarComponent } from './delivery-calendar/delivery-calendar.component';
 
@@ -57,7 +63,12 @@ export interface RecentOrder {
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [MatIconModule, DecimalPipe, DatePipe, OrderMapComponent, DeliveryCalendarComponent],
+  imports: [
+    MatIconModule, MatButtonModule, MatDatepickerModule,
+    MatFormFieldModule, MatInputModule, MatNativeDateModule,
+    DecimalPipe, FormsModule,
+    OrderMapComponent, DeliveryCalendarComponent,
+  ],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,6 +83,12 @@ export class DashboardPageComponent implements OnInit {
     { label: 'W', value: 'weekly' },
     { label: 'M', value: 'monthly' },
   ];
+
+  // ── Date range ──────────────────────────────────────────────────────────
+  protected readonly dateFrom = signal<Date>(
+    new Date(this.today.getFullYear(), this.today.getMonth() - 3, this.today.getDate()),
+  );
+  protected readonly dateTo = signal<Date>(this.today);
 
   protected readonly kpi             = signal<KpiData | null>(null);
   protected readonly revenueData     = signal<RevenuePoint[]>([]);
@@ -185,11 +202,7 @@ export class DashboardPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.loadKpi();
-    this.loadRevenue();
-    this.loadRecentOrders();
-    this.loadStatusBreakdown();
-    this.loadForecast();
+    this.loadAll();
   }
 
   protected setPeriod(p: 'daily' | 'weekly' | 'monthly'): void {
@@ -197,20 +210,48 @@ export class DashboardPageComponent implements OnInit {
     this.loadRevenue();
   }
 
+  protected applyDateRange(): void {
+    this.loadAll();
+  }
+
   protected statusClass(status: string): string {
     return `status-badge status-${(status ?? '').toLowerCase()}`;
   }
 
+  // ── Data loading ────────────────────────────────────────────────────────
+
+  private loadAll(): void {
+    this.loadKpi();
+    this.loadRevenue();
+    this.loadRecentOrders();
+    this.loadStatusBreakdown();
+    this.loadForecast();
+  }
+
+  private dateParams(): HttpParams {
+    let params = new HttpParams();
+    const from = this.dateFrom();
+    const to   = this.dateTo();
+    if (from) params = params.set('from', this.toIso(from));
+    if (to)   params = params.set('to',   this.toIso(to));
+    return params;
+  }
+
+  private toIso(d: Date): string {
+    return d.toISOString().substring(0, 10); // YYYY-MM-DD
+  }
+
   private loadKpi(): void {
-    this.http.get<KpiData>(`${API}/analytics/kpi`).subscribe({
+    this.http.get<KpiData>(`${API}/analytics/kpi`, { params: this.dateParams() }).subscribe({
       next: data => this.kpi.set(data),
       error: () => {},
     });
   }
 
   private loadRevenue(): void {
+    let params = this.dateParams().set('period', this.selectedPeriod());
     this.http
-      .get<RevenuePoint[]>(`${API}/analytics/revenue?period=${this.selectedPeriod()}`)
+      .get<RevenuePoint[]>(`${API}/analytics/revenue`, { params })
       .subscribe({
         next: data => { this.revenueData.set(data); this.isLoading.set(false); },
         error: () => this.isLoading.set(false),

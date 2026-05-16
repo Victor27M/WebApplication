@@ -1,12 +1,17 @@
 import {
-  ChangeDetectionStrategy, Component, DestroyRef,
-  inject, OnInit, signal,
+  ChangeDetectionStrategy, Component, computed, DestroyRef,
+  effect, inject, OnInit, signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -27,8 +32,10 @@ import { OrderListStore } from './order-list.store';
 @Component({
   selector: 'app-order-list-page',
   imports: [
-    MatTableModule, MatButtonModule, MatIconModule,
-    MatDialogModule, MatSnackBarModule, MatTooltipModule, DatePipe,
+    MatTableModule, MatButtonModule, MatIconModule, MatPaginatorModule,
+    MatDialogModule, MatSnackBarModule, MatTooltipModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    FormsModule, DatePipe,
   ],
   templateUrl: './order-list-page.component.html',
   styleUrl: './order-list-page.component.scss',
@@ -43,7 +50,6 @@ export class OrderListPageComponent implements OnInit {
   private readonly snackBar       = inject(MatSnackBar);
   private readonly destroyRef     = inject(DestroyRef);
 
-  protected readonly orders    = this.store.orders;
   protected readonly isLoading = this.store.isLoading;
   protected readonly hasError  = this.store.hasError;
 
@@ -54,11 +60,68 @@ export class OrderListPageComponent implements OnInit {
   protected readonly availablePersons  = signal<Person[]>([]);
   protected readonly availableProducts = signal<Product[]>([]);
 
+  // ── Filters ─────────────────────────────────────────────────────────────
+  protected readonly searchText   = signal('');
+  protected readonly filterStatus = signal('ALL');
+
+  protected readonly statusOptions = ['ALL', 'PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+
+  // ── Pagination ──────────────────────────────────────────────────────────
+  protected readonly pageIndex = signal(0);
+  protected readonly pageSize  = signal(25);
+
+  /** Filtered orders (search + status) */
+  protected readonly filteredOrders = computed(() => {
+    let list = this.store.orders();
+    const q  = this.searchText().toLowerCase().trim();
+    const st = this.filterStatus();
+
+    if (q) {
+      list = list.filter(o =>
+        (o.person?.name ?? '').toLowerCase().includes(q) ||
+        (o.person?.email ?? '').toLowerCase().includes(q) ||
+        (o.destination ?? '').toLowerCase().includes(q) ||
+        (o.id ?? '').toLowerCase().includes(q),
+      );
+    }
+
+    if (st !== 'ALL') {
+      list = list.filter(o => o.status === st);
+    }
+
+    return list;
+  });
+
+  /** Total count for paginator */
+  protected readonly totalOrders = computed(() => this.filteredOrders().length);
+
+  /** Current page slice */
+  protected readonly pagedOrders = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.filteredOrders().slice(start, start + this.pageSize());
+  });
+
+  constructor() {
+    // Reset to page 0 whenever a filter changes
+    effect(() => {
+      this.searchText();
+      this.filterStatus();
+      this.pageIndex.set(0);
+    });
+  }
+
   ngOnInit(): void {
     this.store.load();
     this.personService.getAll().subscribe(p  => this.availablePersons.set(p));
     this.productService.getAll().subscribe(p => this.availableProducts.set(p));
   }
+
+  protected onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
 
   protected getItems(order: Order): OrderItem[] {
     return order.items ?? [];
@@ -103,6 +166,8 @@ export class OrderListPageComponent implements OnInit {
       });
   }
 
+  // ── Dialogs ─────────────────────────────────────────────────────────────
+
   protected openCreateDialog(): void {
     if (this.isLoading()) return;
     this.dialog
@@ -132,7 +197,6 @@ export class OrderListPageComponent implements OnInit {
             title: 'Edit Order', submitLabel: 'Save',
             persons: this.availablePersons(),
             products: this.availableProducts(),
-            // Transform Order → OrderFormInitialValue (dialog expects personId not person object)
             initialValue: {
               personId:    order.person?.id ?? '',
               items:       (order.items ?? []).map(i => ({

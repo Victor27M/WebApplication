@@ -3,9 +3,11 @@ package com.victor.demo.controller;
 import com.victor.demo.dto.*;
 import com.victor.demo.service.AnalyticsService;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -18,14 +20,18 @@ public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
     @GetMapping("/kpi")
-    public ResponseEntity<KpiDTO> getKpi() {
-        return ResponseEntity.ok(analyticsService.getKpi());
+    public ResponseEntity<KpiDTO> getKpi(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return ResponseEntity.ok(analyticsService.getKpi(from, to));
     }
 
     @GetMapping("/revenue")
     public ResponseEntity<List<RevenuePointDTO>> getRevenue(
-            @RequestParam(defaultValue = "weekly") String period) {
-        return ResponseEntity.ok(analyticsService.getRevenue(period));
+            @RequestParam(defaultValue = "weekly") String period,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return ResponseEntity.ok(analyticsService.getRevenue(period, from, to));
     }
 
     @GetMapping("/recent-orders")
@@ -43,11 +49,6 @@ public class AnalyticsController {
         return ResponseEntity.ok(analyticsService.getTopProducts());
     }
 
-    /**
-     * GET /analytics/map-data
-     * Returns one point per unique destination, with lat/lng from OpenRouteService
-     * and the count of orders broken down by status. Used by the dashboard map.
-     */
     @GetMapping("/map-data")
     public ResponseEntity<List<MapPointDTO>> getMapData() {
         return ResponseEntity.ok(analyticsService.getMapData());
