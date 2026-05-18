@@ -1,25 +1,29 @@
-:host { display: block; height: 100%; }
+:host {
+  display: block;
+  height: 100%;
+}
 
 .map-card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
   border-radius: var(--obs-radius-lg);
-  padding: 18px 20px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 320px;
+  overflow: hidden;
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .card-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--obs-text-1);
   margin: 0;
@@ -27,8 +31,8 @@
 
 .map-legend {
   display: flex;
-  gap: 10px;
-  padding: 6px 10px;
+  gap: 8px;
+  padding: 4px 8px;
   border-radius: 99px;
   background: rgba(255,255,255,0.03);
   border: 0.5px solid var(--obs-border-2);
@@ -37,13 +41,13 @@
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10px;
+  gap: 4px;
+  font-size: 9px;
   color: var(--obs-text-2);
 }
 
 .legend-dot {
-  width: 7px; height: 7px;
+  width: 6px; height: 6px;
   border-radius: 50%;
   &.delivered { background: #16a34a; }
   &.shipped   { background: #a78bfa; }
@@ -52,7 +56,7 @@
 
 .map-canvas {
   flex: 1;
-  min-height: 280px;
+  min-height: 0;
   border-radius: var(--obs-radius-md);
   overflow: hidden;
   background: #0a0a0a;
@@ -60,7 +64,7 @@
 }
 
 .map-error {
-  margin-top: 8px;
-  font-size: 12px;
+  margin-top: 6px;
+  font-size: 11px;
   color: var(--status-failed-fg);
 }

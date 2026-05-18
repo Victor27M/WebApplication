@@ -1,128 +1,152 @@
-:host { display: block; }
+:host {
+  display: block;
+  height: 100%;
+}
 
 .cal-card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
   border-radius: var(--obs-radius-lg);
-  padding: 18px 20px;
+  padding: 14px 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
 }
 
 .cal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  margin: 0;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.card-title   { font-size: 13px; font-weight: 500; color: var(--obs-text-1); margin: 0; }
-
-.cal-nav      { display: flex; align-items: center; gap: 6px; }
-.month-label  { font-size: 12px; color: var(--obs-text-2); min-width: 120px; text-align: center; }
-
-.nav-btn {
-  background: var(--obs-surface-2);
-  border: 0.5px solid var(--obs-border-2);
-  border-radius: var(--obs-radius-sm);
+.month-label {
+  font-size: 11px;
   color: var(--obs-text-2);
-  width: 24px; height: 24px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 14px; line-height: 1;
-  &:hover { color: var(--obs-text-1); background: var(--obs-surface-3); }
+  min-width: 90px;
+  text-align: center;
 }
 
-// ── Calendar grid ──────────────────────────────────────────────────────────
+.nav-btn {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: 0.5px solid var(--obs-border);
+  background: transparent;
+  color: var(--obs-text-2);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover { background: var(--obs-surface-2); }
+}
+
+// ── Grid ───────────────────────────────────────────────────────────────────
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 1px;
+  flex: 1;
+  min-height: 0;
 }
 
 .day-header {
-  font-size: 10px;
+  font-size: 9px;
+  font-weight: 500;
   color: var(--obs-text-3);
   text-align: center;
-  padding: 4px 0;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  padding: 2px 0;
 }
 
 .day-cell {
-  min-height: 42px;
-  border-radius: 8px;
-  padding: 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  cursor: default;
-  transition: background 0.12s;
-  position: relative;
+  padding: 2px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 28px;
+  transition: background 0.1s;
 
-  &.other-month .day-num { color: var(--obs-text-3); opacity: 0.4; }
-
-  &.has-orders {
-    background: var(--obs-surface-2);
-    cursor: pointer;
-    &:hover { background: var(--obs-surface-3); }
-  }
-
+  &:hover:not(.other-month) { background: var(--obs-surface-2); }
+  &.other-month { opacity: 0.25; pointer-events: none; }
   &.today .day-num {
     background: var(--obs-text-1);
     color: var(--obs-bg);
     border-radius: 50%;
     width: 20px; height: 20px;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 600;
-    font-size: 11px;
   }
-
-  &.selected {
-    background: var(--obs-surface-3);
-    border: 0.5px solid var(--obs-border-2);
-  }
+  &.selected { background: var(--obs-surface-3); }
+  &.has-orders { cursor: pointer; }
 }
 
 .day-num {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--obs-text-2);
-  line-height: 20px;
+  line-height: 1;
 }
 
 .day-dots {
   display: flex;
   gap: 2px;
-  flex-wrap: wrap;
-  justify-content: center;
+  margin-top: 2px;
 }
 
-// Status dots
 .dot {
-  width: 5px; height: 5px;
+  width: 4px; height: 4px;
   border-radius: 50%;
+  &.dot-delivered  { background: #16a34a; }
+  &.dot-shipped    { background: #a78bfa; }
+  &.dot-confirmed  { background: #60a5fa; }
+  &.dot-pending    { background: #f59e0b; }
+  &.dot-cancelled  { background: #f87171; }
 }
-.dot-pending   { background: var(--status-pending-fg);   }
-.dot-confirmed { background: var(--status-confirmed-fg); }
-.dot-shipped   { background: var(--status-shipped-fg);   }
-.dot-delivered { background: var(--status-delivered-fg); }
-.dot-cancelled { background: var(--status-cancelled-fg); }
 
 .more-count {
-  font-size: 9px;
+  font-size: 7px;
   color: var(--obs-text-3);
+  margin-top: 1px;
 }
 
-// ── Day detail panel ───────────────────────────────────────────────────────
+// ── Day detail — absolute overlay, doesn't push layout ─────────────────────
 .day-detail {
-  margin-top: 12px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--obs-surface);
   border-top: 0.5px solid var(--obs-border);
-  padding-top: 10px;
+  padding: 10px 16px;
+  max-height: 120px;
+  overflow-y: auto;
+  z-index: 10;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--obs-surface-3) transparent;
 }
 
 .day-detail-title {
-  font-size: 12px;
-  color: var(--obs-text-2);
-  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  margin: 0 0 6px;
 }
 
 .day-orders {
@@ -131,21 +155,20 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .day-order-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
 .day-person {
-  font-size: 12px;
-  color: var(--obs-text-1);
   flex: 1;
+  font-size: 11px;
+  color: var(--obs-text-2);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }

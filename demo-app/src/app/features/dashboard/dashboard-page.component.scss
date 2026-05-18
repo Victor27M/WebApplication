@@ -1,101 +1,136 @@
+// ── Dashboard fills the viewport exactly ───────────────────────────────────
 .dashboard {
-  padding: 24px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-height: 100%;
+  height: 100%;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 10px;
+  overflow: hidden;
 }
 
-// ── Header with date range ─────────────────────────────────────────────────
+// ── Header ─────────────────────────────────────────────────────────────────
 .dash-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .dash-title {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   color: var(--obs-text-1);
 }
 
-.date-range-bar {
+.dash-controls {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.date-field {
-  width: 140px;
+// ── Compact date range ─────────────────────────────────────────────────────
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--obs-radius-lg);
+  background: var(--obs-surface);
+  border: 0.5px solid var(--obs-border);
+}
+
+.dr-field {
+  width: 110px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  ::ng-deep .mdc-notched-outline { display: none !important; }
+  ::ng-deep .mat-mdc-form-field-infix { padding: 4px 0 !important; min-height: 28px !important; }
+  ::ng-deep .mat-mdc-text-field-wrapper { padding: 0 4px !important; }
+  ::ng-deep input { font-size: 12px !important; color: var(--obs-text-2) !important; }
+  ::ng-deep .mat-datepicker-toggle button { width: 24px; height: 24px; }
+  ::ng-deep .mat-datepicker-toggle .mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.dr-sep {
+  color: var(--obs-text-3);
   font-size: 12px;
 }
 
-.apply-btn {
-  height: 40px;
-  font-size: 12px;
+.dr-apply {
+  padding: 4px 12px;
+  border-radius: var(--obs-radius-sm);
+  border: none;
+  background: var(--obs-surface-3);
+  color: var(--obs-text-1);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover { background: var(--obs-surface-2); }
 }
 
-// ── KPI grid ───────────────────────────────────────────────────────────────
+// ── KPI row ────────────────────────────────────────────────────────────────
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .kpi-card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
   border-radius: var(--obs-radius-lg);
-  padding: 16px 18px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   position: relative;
   overflow: hidden;
 }
 
-.kpi-label { margin: 0; font-size: 11px; color: var(--obs-text-3); }
-.kpi-value { margin: 4px 0; font-size: 1.6rem; font-weight: 500; color: var(--obs-text-1); letter-spacing: -0.02em; }
-.kpi-sub   { margin: 0; font-size: 10px; color: var(--obs-text-3); }
+.kpi-label { margin: 0; font-size: 10px; color: var(--obs-text-3); }
+.kpi-value { margin: 2px 0; font-size: 1.35rem; font-weight: 500; color: var(--obs-text-1); letter-spacing: -0.02em; }
+.kpi-sub   { margin: 0; font-size: 9px; color: var(--obs-text-3); }
 
 .kpi-spark {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 40px;
-  opacity: 0.6;
+  height: 32px;
+  opacity: 0.5;
 }
 
-// ── Middle row ─────────────────────────────────────────────────────────────
+// ── Mid row: chart + status ────────────────────────────────────────────────
 .mid-grid {
   display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 12px;
+  grid-template-columns: 1fr 180px;
+  gap: 10px;
+  min-height: 0; // allow shrinking in the grid
 }
 
-// ── Shared card ────────────────────────────────────────────────────────────
 .card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
   border-radius: var(--obs-radius-lg);
-  padding: 18px 20px;
+  padding: 14px 16px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   gap: 8px;
 }
 
 .card-title {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--obs-text-1);
 }
@@ -103,93 +138,83 @@
 .header-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .model-tag {
-  font-size: 10px;
-  padding: 2px 7px;
+  font-size: 9px;
+  padding: 2px 6px;
   border-radius: 99px;
   background: var(--obs-surface-3);
   color: var(--obs-text-2);
-  cursor: help;
-  font-family: 'Roboto Mono', monospace, sans-serif;
+  font-family: 'Roboto Mono', monospace;
 }
 
-// ── Chart ──────────────────────────────────────────────────────────────────
-.chart-card { display: flex; flex-direction: column; }
+.chart-card {
+  display: flex;
+  flex-direction: column;
+}
 
 .chart-area {
   flex: 1;
-  min-height: 120px;
+  min-height: 80px;
 }
 
-.period-tabs {
-  display: flex;
-  gap: 2px;
-}
-
+.period-tabs { display: flex; gap: 2px; }
 .ptab {
-  padding: 3px 8px;
-  border-radius: 6px;
+  padding: 2px 7px;
+  border-radius: 5px;
   border: none;
   background: transparent;
   color: var(--obs-text-3);
-  font-size: 11px;
+  font-size: 10px;
   cursor: pointer;
   font-family: inherit;
-
   &:hover  { background: var(--obs-surface-2); color: var(--obs-text-2); }
   &.active { background: var(--obs-surface-3); color: var(--obs-text-1); }
 }
 
-// ── Status card ────────────────────────────────────────────────────────────
-.status-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.status-list { display: flex; flex-direction: column; gap: 6px; }
+.status-row  { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.status-count { font-size: 12px; font-weight: 500; color: var(--obs-text-1); }
 
-.status-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.status-count {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--obs-text-1);
-}
-
-// ── Bottom row: 3 columns ──────────────────────────────────────────────────
+// ── Bottom row: 3 equal fixed-height cards ─────────────────────────────────
 .bot-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  align-items: start;
+  gap: 10px;
+  min-height: 0;
 }
 
-// ── Recent orders ──────────────────────────────────────────────────────────
+.bot-card {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
 .orders-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: calc(100% - 36px);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--obs-surface-3) transparent;
 }
 
 .order-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .order-person {
   flex: 1;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--obs-text-1);
   white-space: nowrap;
   overflow: hidden;
@@ -197,14 +222,14 @@
 }
 
 .order-amount {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--obs-text-2);
   white-space: nowrap;
 }
 
 .empty-state {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--obs-text-3);
   text-align: center;
-  padding: 16px 0;
+  padding: 12px 0;
 }

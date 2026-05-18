@@ -1,39 +1,36 @@
 <div class="dashboard">
 
-  <!-- ── Page header with date range ────────────────────────────────────── -->
+  <!-- ── Header row ─────────────────────────────────────────────────────── -->
   <header class="dash-header">
     <h1 class="dash-title">Dashboard</h1>
-    <div class="date-range-bar">
-      <mat-form-field appearance="outline" class="date-field">
-        <mat-label>From</mat-label>
-        <input matInput [matDatepicker]="pickerFrom"
-          [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
-        <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
-        <mat-datepicker #pickerFrom></mat-datepicker>
-      </mat-form-field>
 
-      <mat-form-field appearance="outline" class="date-field">
-        <mat-label>To</mat-label>
-        <input matInput [matDatepicker]="pickerTo"
-          [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
-        <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
-        <mat-datepicker #pickerTo></mat-datepicker>
-      </mat-form-field>
-
-      <button mat-flat-button class="apply-btn" (click)="applyDateRange()">
-        Apply
-      </button>
+    <div class="dash-controls">
+      <div class="date-range">
+        <mat-form-field appearance="outline" class="dr-field">
+          <input matInput [matDatepicker]="pFrom" placeholder="From"
+                 [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
+          <mat-datepicker-toggle matSuffix [for]="pFrom"></mat-datepicker-toggle>
+          <mat-datepicker #pFrom></mat-datepicker>
+        </mat-form-field>
+        <span class="dr-sep">–</span>
+        <mat-form-field appearance="outline" class="dr-field">
+          <input matInput [matDatepicker]="pTo" placeholder="To"
+                 [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
+          <mat-datepicker-toggle matSuffix [for]="pTo"></mat-datepicker-toggle>
+          <mat-datepicker #pTo></mat-datepicker>
+        </mat-form-field>
+        <button class="dr-apply" (click)="applyDateRange()">Apply</button>
+      </div>
     </div>
   </header>
 
-  <!-- ── KPI cards ──────────────────────────────────────────────────────── -->
-  <section class="kpi-grid" aria-label="Key performance indicators">
-
+  <!-- ── KPI row ────────────────────────────────────────────────────────── -->
+  <section class="kpi-grid">
     <article class="kpi-card">
       <p class="kpi-label">Total revenue</p>
       <p class="kpi-value">{{ totalRevenueFormatted() }}</p>
-      <p class="kpi-sub">All paid orders</p>
-      <div class="kpi-spark" aria-hidden="true">
+      <p class="kpi-sub">Paid orders</p>
+      <div class="kpi-spark">
         <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
           <defs>
             <linearGradient id="g-rev" x1="0" y1="0" x2="0" y2="1">
@@ -43,120 +40,74 @@
           </defs>
           @if (sparklineArea()) {
             <path [attr.d]="sparklineArea()" fill="url(#g-rev)"/>
-            <path [attr.d]="sparklinePath()" fill="none" stroke="#fff"
-              stroke-width="1.5" stroke-linecap="round"/>
+            <path [attr.d]="sparklinePath()" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
           }
         </svg>
       </div>
     </article>
-
     <article class="kpi-card">
       <p class="kpi-label">Total orders</p>
       <p class="kpi-value">{{ kpi()?.totalOrders ?? '—' }}</p>
-      <p class="kpi-sub">In selected range</p>
-      <div class="kpi-spark" aria-hidden="true">
-        <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
-          <path d="M0 24 C10 22 20 18 30 16 C40 14 50 12 60 8 C68 5 74 4 80 3"
-            fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
+      <p class="kpi-sub">In range</p>
     </article>
-
     <article class="kpi-card">
       <p class="kpi-label">Avg. order value</p>
       <p class="kpi-value">{{ avgOrderFormatted() }}</p>
       <p class="kpi-sub">Per paid order</p>
-      <div class="kpi-spark" aria-hidden="true">
-        <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
-          <path d="M0 18 C12 16 24 20 36 16 C48 12 60 14 80 10"
-            fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round"
-            stroke-dasharray="4 2"/>
-        </svg>
-      </div>
     </article>
-
     <article class="kpi-card">
       <p class="kpi-label">Active customers</p>
       <p class="kpi-value">{{ kpi()?.totalCustomers ?? '—' }}</p>
-      <p class="kpi-sub">With placed orders</p>
-      <div class="kpi-spark" aria-hidden="true">
-        <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
-          <rect x="4"  y="20" width="7" height="8"  rx="2" fill="#222"/>
-          <rect x="16" y="16" width="7" height="12" rx="2" fill="#2a2a2a"/>
-          <rect x="28" y="12" width="7" height="16" rx="2" fill="#333"/>
-          <rect x="40" y="8"  width="7" height="20" rx="2" fill="#3a3a3a"/>
-          <rect x="52" y="10" width="7" height="18" rx="2" fill="#444"/>
-          <rect x="64" y="5"  width="7" height="23" rx="2" fill="#555"/>
-        </svg>
-      </div>
+      <p class="kpi-sub">With orders</p>
     </article>
-
   </section>
 
-  <!-- ── Middle row: revenue chart + status breakdown ───────────────────── -->
-  <section class="mid-grid" aria-label="Revenue chart and order status">
-
+  <!-- ── Chart + status row ─────────────────────────────────────────────── -->
+  <section class="mid-grid">
     <article class="card chart-card">
       <header class="card-header">
         <div class="header-info">
           <h2 class="card-title">Revenue + forecast</h2>
           @if (forecastModel()) {
-            <span class="model-tag"
-              [title]="'AIC: ' + forecastModel()?.aic + ' • RMSE: ' + forecastModel()?.rmse">
-              ARIMA{{ forecastModel()?.order }}
-            </span>
+            <span class="model-tag">ARIMA{{ forecastModel()?.order }}</span>
           }
         </div>
-        <div class="period-tabs" role="group" aria-label="Chart period">
+        <div class="period-tabs">
           @for (p of periods; track p.value) {
-            <button
-              class="ptab"
-              [class.active]="selectedPeriod() === p.value"
-              (click)="setPeriod(p.value)"
-              [attr.aria-pressed]="selectedPeriod() === p.value"
-            >{{ p.label }}</button>
+            <button class="ptab" [class.active]="selectedPeriod() === p.value"
+                    (click)="setPeriod(p.value)">{{ p.label }}</button>
           }
         </div>
       </header>
-
       <div class="chart-area">
-        <svg viewBox="0 0 320 130" width="100%" height="100%"
-          preserveAspectRatio="none" role="img">
-          <title>Revenue with forecast</title>
+        <svg viewBox="0 0 320 130" width="100%" height="100%" preserveAspectRatio="none">
           <defs>
             <linearGradient id="cg-main" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#fff" stop-opacity="0.12"/>
               <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
             </linearGradient>
           </defs>
-          <line x1="0" y1="32"  x2="320" y2="32"  stroke="#1a1a1a" stroke-width="0.5"/>
-          <line x1="0" y1="64"  x2="320" y2="64"  stroke="#1a1a1a" stroke-width="0.5"/>
-          <line x1="0" y1="96"  x2="320" y2="96"  stroke="#1a1a1a" stroke-width="0.5"/>
+          <line x1="0" y1="32" x2="320" y2="32" stroke="#1a1a1a" stroke-width="0.5"/>
+          <line x1="0" y1="64" x2="320" y2="64" stroke="#1a1a1a" stroke-width="0.5"/>
+          <line x1="0" y1="96" x2="320" y2="96" stroke="#1a1a1a" stroke-width="0.5"/>
           @if (chartPath().area) {
             <path [attr.d]="chartPath().area" fill="url(#cg-main)"/>
-            <path [attr.d]="chartPath().line" fill="none"
-              stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <path [attr.d]="chartPath().line" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
           }
-          <line x1="230" y1="0" x2="230" y2="130"
-            stroke="#2a2a2a" stroke-width="0.5" stroke-dasharray="3 3"/>
-          <text x="232" y="11" font-size="7" fill="#444"
-            font-family="Roboto, sans-serif">forecast →</text>
+          <line x1="230" y1="0" x2="230" y2="130" stroke="#2a2a2a" stroke-width="0.5" stroke-dasharray="3 3"/>
+          <text x="232" y="11" font-size="7" fill="#444" font-family="Roboto,sans-serif">forecast →</text>
           @if (chartPath().band) {
             <path [attr.d]="chartPath().band" fill="#fff" fill-opacity="0.06"/>
           }
           @if (chartPath().fLine) {
-            <path [attr.d]="chartPath().fLine" fill="none"
-              stroke="#aaa" stroke-width="1.5"
-              stroke-dasharray="4 3" stroke-linecap="round"/>
+            <path [attr.d]="chartPath().fLine" fill="none" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 3" stroke-linecap="round"/>
           }
         </svg>
       </div>
     </article>
 
     <article class="card status-card">
-      <header class="card-header">
-        <h2 class="card-title">Order status</h2>
-      </header>
+      <header class="card-header"><h2 class="card-title">Order status</h2></header>
       <div class="status-list">
         @for (entry of statusEntries(); track entry.status) {
           <div class="status-row">
@@ -164,39 +115,27 @@
             <span class="status-count">{{ entry.count }}</span>
           </div>
         }
-        @if (statusEntries().length === 0) {
-          <p class="empty-state">No data</p>
-        }
       </div>
     </article>
-
   </section>
 
-  <!-- ── Bottom row: recent orders + map + calendar ─────────────────────── -->
-  <section class="bot-grid" aria-label="Recent orders, map and calendar">
-
-    <article class="card orders-card">
-      <header class="card-header">
-        <h2 class="card-title">Recent orders</h2>
-      </header>
-      <ul class="orders-list" role="list">
+  <!-- ── Bottom row ─────────────────────────────────────────────────────── -->
+  <section class="bot-grid">
+    <article class="card bot-card">
+      <header class="card-header"><h2 class="card-title">Recent orders</h2></header>
+      <ul class="orders-list">
         @for (order of recentOrders(); track order.id) {
-          <li class="order-row" role="listitem">
-            <div class="order-person">{{ order.personName }}</div>
+          <li class="order-row">
+            <span class="order-person">{{ order.personName }}</span>
             <span [class]="statusClass(order.status)">{{ order.status }}</span>
             <span class="order-amount">{{ order.amount | number:'1.2-2' }} RON</span>
           </li>
         }
-        @if (recentOrders().length === 0 && !isLoading()) {
-          <li class="empty-state" role="listitem">No recent orders</li>
-        }
       </ul>
     </article>
 
-    <app-order-map></app-order-map>
+    <app-order-map class="bot-card"></app-order-map>
 
-    <app-delivery-calendar></app-delivery-calendar>
-
+    <app-delivery-calendar class="bot-card"></app-delivery-calendar>
   </section>
-
 </div>

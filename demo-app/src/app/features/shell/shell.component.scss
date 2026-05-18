@@ -104,12 +104,13 @@
   .sidebar:hover & { opacity: 1; }
 }
 
-// ── Main content area ──────────────────────────────────────────────────────
+// ── Main content — fills remaining space, no scroll on dashboard ───────────
 .main-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--obs-bg);
+  height: 100vh;
 
   scrollbar-width: thin;
   scrollbar-color: var(--obs-surface-3) transparent;

@@ -14,9 +14,9 @@
     <mat-form-field appearance="outline" class="filter-search">
       <mat-label>Search</mat-label>
       <input matInput
-        [ngModel]="searchText()"
-        (ngModelChange)="searchText.set($event)"
-        placeholder="Name, email, destination or ID" />
+             [ngModel]="searchText()"
+             (ngModelChange)="searchText.set($event)"
+             placeholder="Name, email, destination or ID" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
@@ -94,13 +94,13 @@
         <td mat-cell *matCellDef="let order">
           @if (canPay(order)) {
             <button mat-icon-button (click)="pay(order)"
-              matTooltip="Process payment" [disabled]="isLoading()">
+                    matTooltip="Process payment" [disabled]="isLoading()">
               <mat-icon class="pay-icon">payment</mat-icon>
             </button>
           }
           @if (canRefund(order)) {
             <button mat-icon-button (click)="refund(order)"
-              matTooltip="Issue refund" [disabled]="isLoading()">
+                    matTooltip="Issue refund" [disabled]="isLoading()">
               <mat-icon class="refund-icon">currency_exchange</mat-icon>
             </button>
           }
@@ -108,7 +108,7 @@
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button (click)="openDeleteDialog(order)"
-            class="delete-btn" [disabled]="isLoading()">
+                  class="delete-btn" [disabled]="isLoading()">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -125,7 +125,7 @@
       [length]="totalOrders()"
       [pageIndex]="pageIndex()"
       [pageSize]="pageSize()"
-      [pageSizeOptions]="[25, 50, 100]"
+      [pageSizeOptions]="[10, 25, 50, 100]"
       (page)="onPage($event)"
       showFirstLastButtons
       aria-label="Select page of orders">
