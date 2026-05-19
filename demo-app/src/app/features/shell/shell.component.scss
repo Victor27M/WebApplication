@@ -16,7 +16,7 @@
   flex-direction: column;
   padding: 12px 0;
   flex-shrink: 0;
-  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.18s ease;
   overflow: hidden;
 
   &:hover { width: var(--obs-sidebar-w-expanded); }
@@ -26,18 +26,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: var(--obs-text-1);
-  border-radius: 10px;
+  border-radius: var(--obs-radius-sm);
   margin: 4px auto 20px;
   flex-shrink: 0;
 
   mat-icon {
     color: var(--obs-bg);
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
   }
 }
 
@@ -58,8 +58,8 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
+  gap: 12px;
+  padding: 8px 10px;
   border-radius: var(--obs-radius-sm);
   color: var(--obs-text-3);
   text-decoration: none;
@@ -68,23 +68,12 @@
   background: transparent;
   white-space: nowrap;
   width: 100%;
-  transition: background 0.13s, color 0.13s;
+  transition: color 0.13s;
   font-family: inherit;
 
-  &:hover {
-    background: var(--obs-surface-2);
-    color: var(--obs-text-1);
-  }
-
-  &.active {
-    background: var(--obs-surface-3);
-    color: var(--obs-text-1);
-  }
-
-  &.logout:hover {
-    background: var(--status-failed-bg);
-    color: var(--status-failed-fg);
-  }
+  &:hover  { color: var(--obs-text-1); }
+  &.active { color: var(--obs-text-1); }
+  &.logout:hover { color: var(--status-failed-fg); }
 }
 
 .nav-icon {
@@ -99,23 +88,15 @@
   font-weight: 400;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.15s 0.05s;
-
+  transition: opacity 0.12s 0.05s;
   .sidebar:hover & { opacity: 1; }
 }
 
-// ── Main content — fills remaining space, no scroll on dashboard ───────────
+// ── Main content ───────────────────────────────────────────────────────────
 .main-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--obs-bg);
   height: 100vh;
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--obs-surface-3) transparent;
-
-  &::-webkit-scrollbar       { width: 4px; }
-  &::-webkit-scrollbar-track  { background: transparent; }
-  &::-webkit-scrollbar-thumb  { background: var(--obs-surface-3); border-radius: 99px; }
 }

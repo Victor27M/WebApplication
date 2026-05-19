@@ -1,68 +1,47 @@
 <div class="dashboard">
 
-  <!-- ── Header row ─────────────────────────────────────────────────────── -->
   <header class="dash-header">
     <h1 class="dash-title">Dashboard</h1>
 
-    <div class="dash-controls">
-      <div class="date-range">
-        <mat-form-field appearance="outline" class="dr-field">
-          <input matInput [matDatepicker]="pFrom" placeholder="From"
-                 [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
-          <mat-datepicker-toggle matSuffix [for]="pFrom"></mat-datepicker-toggle>
-          <mat-datepicker #pFrom></mat-datepicker>
-        </mat-form-field>
-        <span class="dr-sep">–</span>
-        <mat-form-field appearance="outline" class="dr-field">
-          <input matInput [matDatepicker]="pTo" placeholder="To"
-                 [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
-          <mat-datepicker-toggle matSuffix [for]="pTo"></mat-datepicker-toggle>
-          <mat-datepicker #pTo></mat-datepicker>
-        </mat-form-field>
-        <button class="dr-apply" (click)="applyDateRange()">Apply</button>
-      </div>
+    <div class="date-range">
+      <mat-form-field appearance="outline" class="dr-field">
+        <input matInput [matDatepicker]="pFrom" placeholder="From"
+               [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
+        <mat-datepicker-toggle matSuffix [for]="pFrom"></mat-datepicker-toggle>
+        <mat-datepicker #pFrom></mat-datepicker>
+      </mat-form-field>
+      <span class="dr-sep">–</span>
+      <mat-form-field appearance="outline" class="dr-field">
+        <input matInput [matDatepicker]="pTo" placeholder="To"
+               [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
+        <mat-datepicker-toggle matSuffix [for]="pTo"></mat-datepicker-toggle>
+        <mat-datepicker #pTo></mat-datepicker>
+      </mat-form-field>
+      <button class="dr-apply" (click)="applyDateRange()">Apply</button>
     </div>
   </header>
 
-  <!-- ── KPI row ────────────────────────────────────────────────────────── -->
+  <!-- KPIs - plain numbers, no sparklines -->
   <section class="kpi-grid">
     <article class="kpi-card">
       <p class="kpi-label">Total revenue</p>
       <p class="kpi-value">{{ totalRevenueFormatted() }}</p>
-      <p class="kpi-sub">Paid orders</p>
-      <div class="kpi-spark">
-        <svg viewBox="0 0 80 28" preserveAspectRatio="none" width="100%" height="100%">
-          <defs>
-            <linearGradient id="g-rev" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#fff" stop-opacity="0.14"/>
-              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          @if (sparklineArea()) {
-            <path [attr.d]="sparklineArea()" fill="url(#g-rev)"/>
-            <path [attr.d]="sparklinePath()" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-          }
-        </svg>
-      </div>
     </article>
     <article class="kpi-card">
       <p class="kpi-label">Total orders</p>
       <p class="kpi-value">{{ kpi()?.totalOrders ?? '—' }}</p>
-      <p class="kpi-sub">In range</p>
     </article>
     <article class="kpi-card">
       <p class="kpi-label">Avg. order value</p>
       <p class="kpi-value">{{ avgOrderFormatted() }}</p>
-      <p class="kpi-sub">Per paid order</p>
     </article>
     <article class="kpi-card">
       <p class="kpi-label">Active customers</p>
       <p class="kpi-value">{{ kpi()?.totalCustomers ?? '—' }}</p>
-      <p class="kpi-sub">With orders</p>
     </article>
   </section>
 
-  <!-- ── Chart + status row ─────────────────────────────────────────────── -->
+  <!-- Chart + status -->
   <section class="mid-grid">
     <article class="card chart-card">
       <header class="card-header">
@@ -81,26 +60,21 @@
       </header>
       <div class="chart-area">
         <svg viewBox="0 0 320 130" width="100%" height="100%" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="cg-main" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#fff" stop-opacity="0.12"/>
-              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <line x1="0" y1="32" x2="320" y2="32" stroke="#1a1a1a" stroke-width="0.5"/>
-          <line x1="0" y1="64" x2="320" y2="64" stroke="#1a1a1a" stroke-width="0.5"/>
-          <line x1="0" y1="96" x2="320" y2="96" stroke="#1a1a1a" stroke-width="0.5"/>
-          @if (chartPath().area) {
-            <path [attr.d]="chartPath().area" fill="url(#cg-main)"/>
-            <path [attr.d]="chartPath().line" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="0" y1="32" x2="320" y2="32" stroke="var(--obs-border)" stroke-width="0.5"/>
+          <line x1="0" y1="64" x2="320" y2="64" stroke="var(--obs-border)" stroke-width="0.5"/>
+          <line x1="0" y1="96" x2="320" y2="96" stroke="var(--obs-border)" stroke-width="0.5"/>
+          @if (chartPath().line) {
+            <path [attr.d]="chartPath().line" fill="none"
+                  stroke="var(--obs-text-1)" stroke-width="1.5" stroke-linecap="round"/>
           }
-          <line x1="230" y1="0" x2="230" y2="130" stroke="#2a2a2a" stroke-width="0.5" stroke-dasharray="3 3"/>
-          <text x="232" y="11" font-size="7" fill="#444" font-family="Roboto,sans-serif">forecast →</text>
-          @if (chartPath().band) {
-            <path [attr.d]="chartPath().band" fill="#fff" fill-opacity="0.06"/>
-          }
+          <line x1="230" y1="0" x2="230" y2="130"
+                stroke="var(--obs-border)" stroke-width="0.5" stroke-dasharray="2 3"/>
+          <text x="232" y="11" font-size="7" fill="var(--obs-text-3)"
+                font-family="Roboto,sans-serif">forecast →</text>
           @if (chartPath().fLine) {
-            <path [attr.d]="chartPath().fLine" fill="none" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 3" stroke-linecap="round"/>
+            <path [attr.d]="chartPath().fLine" fill="none"
+                  stroke="var(--obs-text-2)" stroke-width="1.5"
+                  stroke-dasharray="3 3" stroke-linecap="round"/>
           }
         </svg>
       </div>
@@ -119,7 +93,7 @@
     </article>
   </section>
 
-  <!-- ── Bottom row ─────────────────────────────────────────────────────── -->
+  <!-- Bottom row -->
   <section class="bot-grid">
     <article class="card bot-card">
       <header class="card-header"><h2 class="card-title">Recent orders</h2></header>
@@ -135,7 +109,6 @@
     </article>
 
     <app-order-map class="bot-card"></app-order-map>
-
     <app-delivery-calendar class="bot-card"></app-delivery-calendar>
   </section>
 </div>

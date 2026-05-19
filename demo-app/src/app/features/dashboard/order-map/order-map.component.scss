@@ -6,8 +6,8 @@
 .map-card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
-  border-radius: var(--obs-radius-lg);
-  padding: 14px 16px;
+  border-radius: var(--obs-radius-md);
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -15,51 +15,25 @@
 }
 
 .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 
 .card-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--obs-text-1);
   margin: 0;
-}
-
-.map-legend {
-  display: flex;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 99px;
-  background: rgba(255,255,255,0.03);
-  border: 0.5px solid var(--obs-border-2);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 9px;
-  color: var(--obs-text-2);
-}
-
-.legend-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  &.delivered { background: #16a34a; }
-  &.shipped   { background: #a78bfa; }
-  &.pending   { background: #f59e0b; }
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--obs-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .map-canvas {
   flex: 1;
   min-height: 0;
-  border-radius: var(--obs-radius-md);
+  border-radius: var(--obs-radius-sm);
   overflow: hidden;
-  background: #0a0a0a;
+  background: var(--obs-bg);
   &.is-loading { opacity: 0.4; }
 }
 

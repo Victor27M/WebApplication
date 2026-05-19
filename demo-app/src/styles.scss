@@ -1,203 +1,117 @@
 @use '@angular/material' as mat;
-@import 'leaflet/dist/leaflet.css';
+@include mat.core();
 
-// ── Angular Material base ──────────────────────────────────────────────────
-html {
-  height: 100%;
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
-}
-
-// ── DARK obsidian (default — applied to admin area) ────────────────────────
+// ── Simplified obsidian dark theme ─────────────────────────────────────────
+// Fewer shades, less color, smaller radii. Same variable names as before
+// so all existing components keep working without touching them.
 :root {
-  --obs-bg:        #080808;
-  --obs-surface:   #111111;
-  --obs-surface-2: #161616;
-  --obs-surface-3: #1e1e1e;
-  --obs-border:    #1e1e1e;
-  --obs-border-2:  #2a2a2a;
-  --obs-text-1:    #ffffff;
-  --obs-text-2:    #888888;
-  --obs-text-3:    #444444;
+  // Background layers
+  --obs-bg:         #0d0d0d;
+  --obs-surface:    #161616;
+  --obs-surface-2:  #1c1c1c;
+  --obs-surface-3:  #232323;
+
+  // Borders (one color, used everywhere)
+  --obs-border:    #262626;
+  --obs-border-2:  #262626;
+
+  // Text (three levels — primary, secondary, tertiary)
+  --obs-text-1:  #ededed;
+  --obs-text-2:  #999999;
+  --obs-text-3:  #666666;
+
+  // Radii — flatter, smaller
+  --obs-radius-sm:  6px;
+  --obs-radius-md:  8px;
+  --obs-radius-lg:  10px;
+
+  // Sidebar widths
   --obs-sidebar-w-collapsed: 56px;
-  --obs-sidebar-w-expanded:  188px;
-  --obs-radius-sm: 10px;
-  --obs-radius-md: 14px;
-  --obs-radius-lg: 20px;
+  --obs-sidebar-w-expanded:  200px;
 
-  --status-pending-bg:    #2a1a00; --status-pending-fg:    #f59e0b;
-  --status-confirmed-bg:  #0a1a3a; --status-confirmed-fg:  #60a5fa;
-  --status-shipped-bg:    #1a0a3a; --status-shipped-fg:    #a78bfa;
-  --status-delivered-bg:  #052914; --status-delivered-fg:  #16a34a;
-  --status-cancelled-bg:  #2a0808; --status-cancelled-fg:  #f87171;
-  --status-unpaid-bg:     #1a1a1a; --status-unpaid-fg:     #888888;
-  --status-paid-bg:       #052914; --status-paid-fg:       #16a34a;
-  --status-failed-bg:     #2a0808; --status-failed-fg:     #f87171;
-  --status-refunded-bg:   #1a1a2a; --status-refunded-fg:   #818cf8;
-  --status-processing-bg: #2a1a00; --status-processing-fg: #f59e0b;
+  // ── Status colors — text only, on the SAME muted background ──────────────
+  --status-success-bg: #1c1c1c;
+  --status-success-fg: #4ade80;
+
+  --status-info-bg: #1c1c1c;
+  --status-info-fg: #93c5fd;
+
+  --status-shipped-bg: #1c1c1c;
+  --status-shipped-fg: #c4b5fd;
+
+  --status-pending-bg: #1c1c1c;
+  --status-pending-fg: #fbbf24;
+
+  --status-failed-bg: #1c1c1c;
+  --status-failed-fg: #f87171;
+
+  // Material theme override
+  --mdc-theme-primary:   var(--obs-text-1);
+  --mdc-theme-secondary: var(--obs-text-2);
 }
 
-// ── LIGHT theme override — applied to customer area via .theme-light ───────
-.theme-light {
-  --obs-bg:        #fafafa;
-  --obs-surface:   #ffffff;
-  --obs-surface-2: #f5f5f5;
-  --obs-surface-3: #ebebeb;
-  --obs-border:    #e8e8e8;
-  --obs-border-2:  #d4d4d4;
-  --obs-text-1:    #1a1a1a;
-  --obs-text-2:    #666666;
-  --obs-text-3:    #999999;
-
-  // Lighter pastels for status backgrounds in light mode
-  --status-pending-bg:    #fef3c7; --status-pending-fg:    #b45309;
-  --status-confirmed-bg:  #dbeafe; --status-confirmed-fg:  #1d4ed8;
-  --status-shipped-bg:    #ede9fe; --status-shipped-fg:    #6d28d9;
-  --status-delivered-bg:  #d1fae5; --status-delivered-fg:  #047857;
-  --status-cancelled-bg:  #fee2e2; --status-cancelled-fg:  #b91c1c;
-  --status-unpaid-bg:     #f3f4f6; --status-unpaid-fg:     #6b7280;
-  --status-paid-bg:       #d1fae5; --status-paid-fg:       #047857;
-  --status-failed-bg:     #fee2e2; --status-failed-fg:     #b91c1c;
-  --status-refunded-bg:   #e0e7ff; --status-refunded-fg:   #4338ca;
-  --status-processing-bg: #fef3c7; --status-processing-fg: #b45309;
-}
-
-// ── Base reset ─────────────────────────────────────────────────────────────
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
+// ── Body / global ──────────────────────────────────────────────────────────
+html, body {
   height: 100%;
+  margin: 0;
   background: var(--obs-bg);
   color: var(--obs-text-1);
   font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
 }
 
-// ── Status badges ──────────────────────────────────────────────────────────
+* { box-sizing: border-box; }
+
+// ── Status badges — flat text, no rounded pill, no bold ────────────────────
 .status-badge {
   display: inline-block;
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  &.status-delivered  { color: var(--status-success-fg); background: var(--status-success-bg); }
+  &.status-shipped    { color: var(--status-shipped-fg); background: var(--status-shipped-bg); }
+  &.status-confirmed  { color: var(--status-info-fg);    background: var(--status-info-bg); }
+  &.status-pending    { color: var(--status-pending-fg); background: var(--status-pending-bg); }
+  &.status-cancelled  { color: var(--status-failed-fg);  background: var(--status-failed-bg); }
+  &.status-paid       { color: var(--status-success-fg); background: var(--status-success-bg); }
+  &.status-unpaid     { color: var(--obs-text-3);        background: var(--obs-surface-2); }
+  &.status-failed     { color: var(--status-failed-fg);  background: var(--status-failed-bg); }
+  &.status-refunded   { color: var(--obs-text-3);        background: var(--obs-surface-2); }
 }
 
-.status-pending    { background: var(--status-pending-bg);    color: var(--status-pending-fg);    }
-.status-confirmed  { background: var(--status-confirmed-bg);  color: var(--status-confirmed-fg);  }
-.status-shipped    { background: var(--status-shipped-bg);    color: var(--status-shipped-fg);    }
-.status-delivered  { background: var(--status-delivered-bg);  color: var(--status-delivered-fg);  }
-.status-cancelled  { background: var(--status-cancelled-bg);  color: var(--status-cancelled-fg);  }
-.status-unpaid     { background: var(--status-unpaid-bg);     color: var(--status-unpaid-fg);     }
-.status-paid       { background: var(--status-paid-bg);       color: var(--status-paid-fg);       }
-.status-failed     { background: var(--status-failed-bg);     color: var(--status-failed-fg);     }
-.status-refunded   { background: var(--status-refunded-bg);   color: var(--status-refunded-fg);   }
-.status-processing { background: var(--status-processing-bg); color: var(--status-processing-fg); }
-
-// ── Role chips ─────────────────────────────────────────────────────────────
-.role-chip     { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 500; }
-.role-admin    { background: #1a1a3a; color: #818cf8; }
-.role-customer { background: #0a2a1a; color: #4ade80; }
-
-.theme-light .role-admin    { background: #e0e7ff; color: #4338ca; }
-.theme-light .role-customer { background: #d1fae5; color: #047857; }
-
-// ── Product chips ──────────────────────────────────────────────────────────
-.products-cell { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; }
-.product-chip  {
-  display: inline-block; padding: 2px 8px; border-radius: 99px;
-  font-size: 0.72rem; font-weight: 500;
-  background: #1a1a3a; color: #818cf8;
-}
-.theme-light .product-chip { background: #e0e7ff; color: #4338ca; }
-
-// ── Stock states ───────────────────────────────────────────────────────────
-.stock-available { color: #16a34a; font-weight: 500; }
-.stock-empty     { color: #f87171; font-weight: 500; }
-.theme-light .stock-empty { color: #b91c1c; }
-
-// ── Shared page layout ─────────────────────────────────────────────────────
-.page-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 28px;
-}
-
-.page-header   { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-.page-title    { margin: 0 0 4px; font-size: 1.25rem; font-weight: 500; color: var(--obs-text-1); }
-.page-subtitle { margin: 0; font-size: 13px; color: var(--obs-text-3); }
-
-// ── Alerts & status text ───────────────────────────────────────────────────
-.error-alert {
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 16px; margin-bottom: 20px;
-  background: var(--status-failed-bg);
-  border: 0.5px solid var(--status-failed-fg);
-  border-radius: var(--obs-radius-md);
-  color: var(--status-failed-fg);
-  font-size: 13px;
-}
-
-.loading-status { margin: 0 0 12px; color: var(--obs-text-2); font-size: 13px; }
-
-// ── Shared table ───────────────────────────────────────────────────────────
-.table-container {
-  background: var(--obs-surface);
-  border: 0.5px solid var(--obs-border);
-  border-radius: var(--obs-radius-lg);
-  overflow: auto;
-  table { width: 100%; }
-  &.is-busy { opacity: 0.6; }
+// ── Material overrides — flatter, monochrome ───────────────────────────────
+.mat-mdc-table {
+  background: var(--obs-surface) !important;
+  color: var(--obs-text-1) !important;
 }
 
 .mat-mdc-header-cell {
-  background: var(--obs-surface) !important;
   color: var(--obs-text-3) !important;
   font-size: 11px !important;
   font-weight: 500 !important;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   border-bottom: 0.5px solid var(--obs-border) !important;
 }
 
-.mat-mdc-row {
-  background: var(--obs-surface) !important;
-  border-bottom: 0.5px solid var(--obs-border) !important;
-  &:hover { background: var(--obs-surface-2) !important; }
-}
-
-.mat-mdc-cell   { color: var(--obs-text-1) !important; font-size: 13px !important; }
-.no-data-cell   { padding: 32px; text-align: center; color: var(--obs-text-3); font-size: 13px; }
-.delete-btn     { color: var(--status-failed-fg) !important; }
-
-// ── Mat dialog dark/light ──────────────────────────────────────────────────
-.mat-mdc-dialog-surface {
-  background: var(--obs-surface) !important;
-  border: 0.5px solid var(--obs-border-2) !important;
-  border-radius: var(--obs-radius-lg) !important;
-}
-
-.mat-mdc-form-field {
-  .mdc-text-field { background: var(--obs-surface-2) !important; border-radius: var(--obs-radius-sm) !important; }
-  .mat-mdc-floating-label,
-  .mat-mdc-input-element,
-  .mat-mdc-select-value { color: var(--obs-text-1) !important; }
-}
-
-.mat-mdc-raised-button.mat-primary,
-.mat-mdc-unelevated-button.mat-primary {
-  background: var(--obs-text-1) !important;
-  color: var(--obs-bg) !important;
-  border-radius: var(--obs-radius-sm) !important;
+.mat-mdc-cell {
+  color: var(--obs-text-1) !important;
   font-size: 13px !important;
-  font-weight: 500 !important;
+  border-bottom: 0.5px solid var(--obs-border) !important;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+  background: var(--obs-surface-2) !important;
+}
+
+.mat-mdc-paginator {
+  background: var(--obs-surface) !important;
+  color: var(--obs-text-2) !important;
 }
 
 .mat-mdc-icon-button {
@@ -205,38 +119,69 @@ body {
   &:hover { color: var(--obs-text-1) !important; }
 }
 
-// ── Filters row ────────────────────────────────────────────────────────────
-.filters      { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-.filter-field { flex: 1 1 180px; }
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-flat-button {
+  background: var(--obs-text-1) !important;
+  color: var(--obs-bg) !important;
+  box-shadow: none !important;
 
+  &:hover { opacity: 0.9; }
+  &[disabled] { opacity: 0.4; }
+}
 
-/* Add this block at the bottom of src/styles.scss */
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: var(--obs-border);
+  --mdc-outlined-text-field-hover-outline-color: var(--obs-text-3);
+  --mdc-outlined-text-field-focus-outline-color: var(--obs-text-1);
+  --mdc-outlined-text-field-label-text-color: var(--obs-text-3);
+  --mdc-outlined-text-field-input-text-color: var(--obs-text-1);
+}
 
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--obs-surface-3);
+  --mdc-snackbar-supporting-text-color: var(--obs-text-1);
+}
+
+.mat-datepicker-content,
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel {
+  background: var(--obs-surface) !important;
+  border: 0.5px solid var(--obs-border) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+}
+
+.mat-calendar { color: var(--obs-text-1) !important; }
+.mat-calendar-table-header th { color: var(--obs-text-3) !important; }
+.mat-calendar-body-cell-content { color: var(--obs-text-2) !important; }
+.mat-calendar-body-selected { background: var(--obs-text-1) !important; color: var(--obs-bg) !important; }
+
+// ── Leaflet tooltip (used by the order map) ────────────────────────────────
 .leaflet-tooltip.obsidian-tooltip {
-  background: rgba(15, 15, 15, 0.94) !important;
-  backdrop-filter: blur(10px);
-  border: 0.5px solid #2a2a2a !important;
-  border-radius: 14px !important;
-  padding: 10px 12px !important;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.5) !important;
-  color: #fff !important;
+  background: var(--obs-surface) !important;
+  border: 0.5px solid var(--obs-border) !important;
+  border-radius: var(--obs-radius-md) !important;
+  padding: 8px 10px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+  color: var(--obs-text-1) !important;
   font-family: 'Roboto', sans-serif !important;
-  pointer-events: none;
 }
-
 .leaflet-tooltip.obsidian-tooltip::before {
-  border-top-color: rgba(15, 15, 15, 0.94) !important;
+  border-top-color: var(--obs-surface) !important;
 }
-
 .leaflet-control-zoom {
-  border: 0.5px solid #2a2a2a !important;
-  border-radius: 10px !important;
+  border: 0.5px solid var(--obs-border) !important;
+  border-radius: var(--obs-radius-sm) !important;
   overflow: hidden;
-
   a {
-    background: #111 !important;
-    color: #888 !important;
+    background: var(--obs-surface) !important;
+    color: var(--obs-text-2) !important;
     border: none !important;
-    &:hover { background: #161616 !important; color: #fff !important; }
+    &:hover { background: var(--obs-surface-2) !important; color: var(--obs-text-1) !important; }
   }
 }
+
+// ── Scrollbars ─────────────────────────────────────────────────────────────
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--obs-surface-3); border-radius: 99px; }

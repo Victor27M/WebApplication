@@ -1,10 +1,5 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  computed,
-  inject,
-  signal,
+  ChangeDetectionStrategy, Component, OnInit, computed, inject, signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -27,38 +22,16 @@ export interface KpiData {
   totalCustomers: number;
 }
 
-export interface RevenuePoint {
-  date: string;
-  revenue: number;
-}
-
-export interface ForecastPoint {
-  date: string;
-  predicted: number;
-  lower: number;
-  upper: number;
-}
-
+export interface RevenuePoint { date: string; revenue: number; }
+export interface ForecastPoint { date: string; predicted: number; lower: number; upper: number; }
 export interface ForecastResponse {
   predictions: ForecastPoint[];
-  model?: {
-    type: string;
-    order: string;
-    aic: number;
-    rmse: number;
-    mae: number;
-    training_points: number;
-  };
+  model?: { type: string; order: string; aic: number; rmse: number; mae: number; training_points: number; };
   error?: string;
 }
-
 export interface RecentOrder {
-  id: string;
-  personName: string;
-  status: string;
-  paymentStatus: string;
-  amount: number;
-  orderDate: string;
+  id: string; personName: string; status: string;
+  paymentStatus: string; amount: number; orderDate: string;
 }
 
 @Component({
@@ -84,7 +57,6 @@ export class DashboardPageComponent implements OnInit {
     { label: 'M', value: 'monthly' },
   ];
 
-  // ── Date range ──────────────────────────────────────────────────────────
   protected readonly dateFrom = signal<Date>(
     new Date(this.today.getFullYear(), this.today.getMonth() - 3, this.today.getDate()),
   );
@@ -113,49 +85,21 @@ export class DashboardPageComponent implements OnInit {
     }).format(v);
   });
 
-  protected readonly sparklinePath = computed(() => {
-    const data = this.revenueData();
-    if (data.length < 2) return '';
-    const values = data.map(d => d.revenue);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
-    const points = values.map((v, i) => ({
-      x: (i / (values.length - 1)) * 80,
-      y: 28 - ((v - min) / range) * 24 - 2,
-    }));
-    let d = `M${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
-    for (let i = 1; i < points.length; i++) {
-      const cp = points[i - 1];
-      const np = points[i];
-      const mx = (cp.x + np.x) / 2;
-      d += ` C${mx.toFixed(1)} ${cp.y.toFixed(1)} ${mx.toFixed(1)} ${np.y.toFixed(1)} ${np.x.toFixed(1)} ${np.y.toFixed(1)}`;
-    }
-    return d;
-  });
-
-  protected readonly sparklineArea = computed(() => {
-    const path = this.sparklinePath();
-    if (!path) return '';
-    return `${path} L80 28 L0 28 Z`;
-  });
-
+  // Single line chart, no gradient, no band
   protected readonly chartPath = computed(() => {
     const history  = this.revenueData();
     const forecast = this.forecastData();
-    if (history.length < 2) return { line: '', area: '', fLine: '', band: '' };
+    if (history.length < 2) return { line: '', fLine: '' };
 
     const allValues = [
       ...history.map(d => d.revenue),
-      ...forecast.flatMap(f => [f.predicted, f.lower, f.upper]),
+      ...forecast.map(f => f.predicted),
     ];
     const min = Math.min(...allValues);
     const max = Math.max(...allValues);
     const range = max - min || 1;
 
-    const W_HIST = 230;
-    const W_FORECAST = 90;
-    const H = 110;
+    const W_HIST = 230, W_FORECAST = 90, H = 110;
     const toY = (v: number) => H - ((v - min) / range) * (H - 20) - 10;
 
     const histPts = history.map((d, i) => ({
@@ -165,60 +109,39 @@ export class DashboardPageComponent implements OnInit {
 
     let line = `M${histPts[0].x.toFixed(1)} ${histPts[0].y.toFixed(1)}`;
     for (let i = 1; i < histPts.length; i++) {
-      const cp = histPts[i - 1];
-      const np = histPts[i];
-      const mx = (cp.x + np.x) / 2;
-      line += ` C${mx.toFixed(1)} ${cp.y.toFixed(1)} ${mx.toFixed(1)} ${np.y.toFixed(1)} ${np.x.toFixed(1)} ${np.y.toFixed(1)}`;
+      line += ` L${histPts[i].x.toFixed(1)} ${histPts[i].y.toFixed(1)}`;
     }
-    const area = `${line} L${W_HIST} 130 L0 130 Z`;
 
-    if (forecast.length === 0) return { line, area, fLine: '', band: '' };
+    if (forecast.length === 0) return { line, fLine: '' };
 
     const fPts = forecast.map((f, i) => ({
       x: W_HIST + (i / Math.max(1, forecast.length - 1)) * W_FORECAST,
       y: toY(f.predicted),
-      yL: toY(f.lower),
-      yU: toY(f.upper),
     }));
-
     const startX = histPts[histPts.length - 1].x;
     const startY = histPts[histPts.length - 1].y;
     let fLine = `M${startX.toFixed(1)} ${startY.toFixed(1)}`;
     for (const p of fPts) fLine += ` L${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
 
-    let bandUp = `M${startX.toFixed(1)} ${startY.toFixed(1)}`;
-    let bandDown = '';
-    for (const p of fPts) bandUp += ` L${p.x.toFixed(1)} ${p.yU.toFixed(1)}`;
-    for (let i = fPts.length - 1; i >= 0; i--) {
-      bandDown += ` L${fPts[i].x.toFixed(1)} ${fPts[i].yL.toFixed(1)}`;
-    }
-    const band = bandUp + bandDown + ` L${startX.toFixed(1)} ${startY.toFixed(1)} Z`;
-
-    return { line, area, fLine, band };
+    return { line, fLine };
   });
 
   protected readonly statusEntries = computed(() =>
     Object.entries(this.statusBreakdown()).map(([status, count]) => ({ status, count })),
   );
 
-  ngOnInit(): void {
-    this.loadAll();
-  }
+  ngOnInit(): void { this.loadAll(); }
 
   protected setPeriod(p: 'daily' | 'weekly' | 'monthly'): void {
     this.selectedPeriod.set(p);
     this.loadRevenue();
   }
 
-  protected applyDateRange(): void {
-    this.loadAll();
-  }
+  protected applyDateRange(): void { this.loadAll(); }
 
   protected statusClass(status: string): string {
     return `status-badge status-${(status ?? '').toLowerCase()}`;
   }
-
-  // ── Data loading ────────────────────────────────────────────────────────
 
   private loadAll(): void {
     this.loadKpi();
@@ -230,28 +153,22 @@ export class DashboardPageComponent implements OnInit {
 
   private dateParams(): HttpParams {
     let params = new HttpParams();
-    const from = this.dateFrom();
-    const to   = this.dateTo();
+    const from = this.dateFrom(), to = this.dateTo();
     if (from) params = params.set('from', this.toIso(from));
     if (to)   params = params.set('to',   this.toIso(to));
     return params;
   }
 
-  private toIso(d: Date): string {
-    return d.toISOString().substring(0, 10); // YYYY-MM-DD
-  }
+  private toIso(d: Date): string { return d.toISOString().substring(0, 10); }
 
   private loadKpi(): void {
-    this.http.get<KpiData>(`${API}/analytics/kpi`, { params: this.dateParams() }).subscribe({
-      next: data => this.kpi.set(data),
-      error: () => {},
-    });
+    this.http.get<KpiData>(`${API}/analytics/kpi`, { params: this.dateParams() })
+      .subscribe({ next: data => this.kpi.set(data), error: () => {} });
   }
 
   private loadRevenue(): void {
-    let params = this.dateParams().set('period', this.selectedPeriod());
-    this.http
-      .get<RevenuePoint[]>(`${API}/analytics/revenue`, { params })
+    const params = this.dateParams().set('period', this.selectedPeriod());
+    this.http.get<RevenuePoint[]>(`${API}/analytics/revenue`, { params })
       .subscribe({
         next: data => { this.revenueData.set(data); this.isLoading.set(false); },
         error: () => this.isLoading.set(false),
@@ -271,18 +188,12 @@ export class DashboardPageComponent implements OnInit {
   }
 
   private loadRecentOrders(): void {
-    this.http.get<RecentOrder[]>(`${API}/analytics/recent-orders`).subscribe({
-      next: data => this.recentOrders.set(data),
-      error: () => {},
-    });
+    this.http.get<RecentOrder[]>(`${API}/analytics/recent-orders`)
+      .subscribe({ next: data => this.recentOrders.set(data), error: () => {} });
   }
 
   private loadStatusBreakdown(): void {
-    this.http
-      .get<Record<string, number>>(`${API}/analytics/order-status-breakdown`)
-      .subscribe({
-        next: data => this.statusBreakdown.set(data),
-        error: () => {},
-      });
+    this.http.get<Record<string, number>>(`${API}/analytics/order-status-breakdown`)
+      .subscribe({ next: data => this.statusBreakdown.set(data), error: () => {} });
   }
 }

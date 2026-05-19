@@ -6,76 +6,57 @@
   gap: 0;
 }
 
-// ── Step ───────────────────────────────────────────────────────────────────
 .step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  min-width: 60px;
+  gap: 4px;
+  min-width: 56px;
 }
 
 .step-dot {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 500;
-  transition: all 0.2s;
+  font-size: 9px;
 }
 
 .step-label {
-  font-size: 10px;
+  font-size: 9px;
   text-transform: capitalize;
   white-space: nowrap;
 }
 
 // ── States ─────────────────────────────────────────────────────────────────
-.step-done .step-dot {
-  background: #16a34a;
-  color: #fff;
-}
-.step-done .step-label {
-  color: #16a34a;
-  font-weight: 500;
-}
+.step-done .step-dot   { background: var(--obs-text-1); color: var(--obs-bg); }
+.step-done .step-label { color: var(--obs-text-1); }
 
 .step-current .step-dot {
-  background: #f59e0b;
-  color: #fff;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+  background: transparent;
+  border: 1.5px solid var(--obs-text-1);
 }
-.step-current .step-label {
-  color: #f59e0b;
-  font-weight: 500;
-}
+.step-current .step-label { color: var(--obs-text-1); }
 
-.step-future .step-dot {
-  background: var(--obs-surface-3, #333);
-  color: var(--obs-text-3, #888);
-}
-.step-future .step-label {
-  color: var(--obs-text-3, #888);
-}
+.step-future .step-dot   { background: var(--obs-surface-3); }
+.step-future .step-label { color: var(--obs-text-3); }
 
-.check { font-size: 11px; }
+.check { font-size: 9px; }
 
-// ── Connector line ─────────────────────────────────────────────────────────
+// ── Connector ──────────────────────────────────────────────────────────────
 .connector,
 .connector-done,
 .connector-future {
-  height: 2px;
+  height: 1px;
   flex: 1;
   min-width: 16px;
-  margin-top: 9px; // center with dot
-  border-radius: 1px;
+  margin-top: 7px;
 }
 
-.connector-done   { background: #16a34a; }
-.connector-future { background: var(--obs-surface-3, #333); }
+.connector-done   { background: var(--obs-text-2); }
+.connector-future { background: var(--obs-border); }
 
 // ── Cancelled ──────────────────────────────────────────────────────────────
 .cancelled-state {
@@ -85,20 +66,19 @@
 }
 
 .cancel-icon {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #ef4444;
-  color: #fff;
+  background: var(--status-failed-fg);
+  color: var(--obs-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 500;
 }
 
 .cancel-label {
-  font-size: 12px;
-  color: #ef4444;
-  font-weight: 500;
+  font-size: 11px;
+  color: var(--status-failed-fg);
 }

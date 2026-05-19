@@ -6,8 +6,8 @@
 .cal-card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
-  border-radius: var(--obs-radius-lg);
-  padding: 14px 16px;
+  border-radius: var(--obs-radius-md);
+  padding: 16px 18px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -19,14 +19,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   flex-shrink: 0;
 }
 
 .card-title {
   font-size: 12px;
-  font-weight: 500;
-  color: var(--obs-text-1);
+  font-weight: 400;
+  color: var(--obs-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   margin: 0;
 }
 
@@ -45,7 +47,7 @@
 
 .nav-btn {
   width: 22px; height: 22px;
-  border-radius: 6px;
+  border-radius: var(--obs-radius-sm);
   border: 0.5px solid var(--obs-border);
   background: transparent;
   color: var(--obs-text-2);
@@ -54,7 +56,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  &:hover { background: var(--obs-surface-2); }
+  &:hover { background: var(--obs-surface-2); color: var(--obs-text-1); }
 }
 
 // ── Grid ───────────────────────────────────────────────────────────────────
@@ -68,7 +70,7 @@
 
 .day-header {
   font-size: 9px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--obs-text-3);
   text-align: center;
   padding: 2px 0;
@@ -79,7 +81,7 @@
   flex-direction: column;
   align-items: center;
   padding: 2px 0;
-  border-radius: 4px;
+  border-radius: var(--obs-radius-sm);
   cursor: pointer;
   min-height: 28px;
   transition: background 0.1s;
@@ -90,11 +92,10 @@
     background: var(--obs-text-1);
     color: var(--obs-bg);
     border-radius: 50%;
-    width: 20px; height: 20px;
+    width: 18px; height: 18px;
     display: flex; align-items: center; justify-content: center;
   }
   &.selected { background: var(--obs-surface-3); }
-  &.has-orders { cursor: pointer; }
 }
 
 .day-num {
@@ -109,14 +110,17 @@
   margin-top: 2px;
 }
 
-.dot {
-  width: 4px; height: 4px;
+// Single monochrome dot regardless of status
+.dot,
+.dot-delivered,
+.dot-shipped,
+.dot-confirmed,
+.dot-pending,
+.dot-cancelled {
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
-  &.dot-delivered  { background: #16a34a; }
-  &.dot-shipped    { background: #a78bfa; }
-  &.dot-confirmed  { background: #60a5fa; }
-  &.dot-pending    { background: #f59e0b; }
-  &.dot-cancelled  { background: #f87171; }
+  background: var(--obs-text-2);
 }
 
 .more-count {
@@ -125,7 +129,7 @@
   margin-top: 1px;
 }
 
-// ── Day detail — absolute overlay, doesn't push layout ─────────────────────
+// ── Day detail overlay ─────────────────────────────────────────────────────
 .day-detail {
   position: absolute;
   bottom: 0;
@@ -137,14 +141,10 @@
   max-height: 120px;
   overflow-y: auto;
   z-index: 10;
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--obs-surface-3) transparent;
 }
 
 .day-detail-title {
   font-size: 11px;
-  font-weight: 500;
   color: var(--obs-text-1);
   margin: 0 0 6px;
 }
