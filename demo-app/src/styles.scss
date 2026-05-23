@@ -1,26 +1,24 @@
 @use '@angular/material' as mat;
 @include mat.core();
 
-// ── Simplified obsidian dark theme ─────────────────────────────────────────
-// Fewer shades, less color, smaller radii. Same variable names as before
-// so all existing components keep working without touching them.
+// ── Refined dark theme — quiet, balanced, intentional ──────────────────────
 :root {
-  // Background layers
-  --obs-bg:         #0d0d0d;
-  --obs-surface:    #161616;
-  --obs-surface-2:  #1c1c1c;
-  --obs-surface-3:  #232323;
+  // Background layers — slight gradient of depth
+  --obs-bg:         #0a0a0a;
+  --obs-surface:    #131313;
+  --obs-surface-2:  #1a1a1a;
+  --obs-surface-3:  #222222;
 
-  // Borders (one color, used everywhere)
-  --obs-border:    #262626;
-  --obs-border-2:  #262626;
+  // Borders — two stops for hover affordance
+  --obs-border:    #1f1f1f;
+  --obs-border-2:  #2a2a2a;
 
-  // Text (three levels — primary, secondary, tertiary)
-  --obs-text-1:  #ededed;
-  --obs-text-2:  #999999;
-  --obs-text-3:  #666666;
+  // Text — three levels
+  --obs-text-1:  #e8e8e8;
+  --obs-text-2:  #8a8a8a;
+  --obs-text-3:  #5a5a5a;
 
-  // Radii — flatter, smaller
+  // Radii — small but not flat
   --obs-radius-sm:  6px;
   --obs-radius-md:  8px;
   --obs-radius-lg:  10px;
@@ -29,25 +27,26 @@
   --obs-sidebar-w-collapsed: 56px;
   --obs-sidebar-w-expanded:  200px;
 
-  // ── Status colors — text only, on the SAME muted background ──────────────
-  --status-success-bg: #1c1c1c;
+  // ── Status colors — tinted backgrounds tied to text color ────────────────
+  // The 1c1c1c trick from before made badges look like floating text. These
+  // use a true tint of the foreground at low opacity — anchored, not floating.
+  --status-success-bg: rgba(74, 222, 128, 0.10);
   --status-success-fg: #4ade80;
 
-  --status-info-bg: #1c1c1c;
+  --status-info-bg: rgba(147, 197, 253, 0.10);
   --status-info-fg: #93c5fd;
 
-  --status-shipped-bg: #1c1c1c;
+  --status-shipped-bg: rgba(196, 181, 253, 0.10);
   --status-shipped-fg: #c4b5fd;
 
-  --status-pending-bg: #1c1c1c;
+  --status-pending-bg: rgba(251, 191, 36, 0.10);
   --status-pending-fg: #fbbf24;
 
-  --status-failed-bg: #1c1c1c;
+  --status-failed-bg: rgba(248, 113, 113, 0.10);
   --status-failed-fg: #f87171;
 
-  // Material theme override
-  --mdc-theme-primary:   var(--obs-text-1);
-  --mdc-theme-secondary: var(--obs-text-2);
+  --status-neutral-bg: rgba(138, 138, 138, 0.08);
+  --status-neutral-fg: #8a8a8a;
 }
 
 // ── Body / global ──────────────────────────────────────────────────────────
@@ -56,22 +55,27 @@ html, body {
   margin: 0;
   background: var(--obs-bg);
   color: var(--obs-text-1);
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', 'Roboto', system-ui, -apple-system, sans-serif;
   font-size: 14px;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * { box-sizing: border-box; }
 
-// ── Status badges — flat text, no rounded pill, no bold ────────────────────
+a { color: inherit; text-decoration: none; }
+
+// ── Status badges — tinted, weighted, anchored ─────────────────────────────
 .status-badge {
-  display: inline-block;
-  padding: 2px 8px;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
   border-radius: 4px;
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
 
   &.status-delivered  { color: var(--status-success-fg); background: var(--status-success-bg); }
   &.status-shipped    { color: var(--status-shipped-fg); background: var(--status-shipped-bg); }
@@ -79,30 +83,34 @@ html, body {
   &.status-pending    { color: var(--status-pending-fg); background: var(--status-pending-bg); }
   &.status-cancelled  { color: var(--status-failed-fg);  background: var(--status-failed-bg); }
   &.status-paid       { color: var(--status-success-fg); background: var(--status-success-bg); }
-  &.status-unpaid     { color: var(--obs-text-3);        background: var(--obs-surface-2); }
+  &.status-unpaid     { color: var(--status-neutral-fg); background: var(--status-neutral-bg); }
   &.status-failed     { color: var(--status-failed-fg);  background: var(--status-failed-bg); }
-  &.status-refunded   { color: var(--obs-text-3);        background: var(--obs-surface-2); }
+  &.status-refunded   { color: var(--status-neutral-fg); background: var(--status-neutral-bg); }
 }
 
-// ── Material overrides — flatter, monochrome ───────────────────────────────
+// ── Material table overrides ───────────────────────────────────────────────
 .mat-mdc-table {
-  background: var(--obs-surface) !important;
+  background: transparent !important;
   color: var(--obs-text-1) !important;
 }
+
+.mat-mdc-header-row { background: transparent !important; }
 
 .mat-mdc-header-cell {
   color: var(--obs-text-3) !important;
   font-size: 11px !important;
   font-weight: 500 !important;
-  text-transform: uppercase;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   border-bottom: 0.5px solid var(--obs-border) !important;
+  padding: 12px 16px !important;
 }
 
 .mat-mdc-cell {
   color: var(--obs-text-1) !important;
   font-size: 13px !important;
   border-bottom: 0.5px solid var(--obs-border) !important;
+  padding: 14px 16px !important;
 }
 
 .mat-mdc-row:hover .mat-mdc-cell {
@@ -110,74 +118,164 @@ html, body {
 }
 
 .mat-mdc-paginator {
-  background: var(--obs-surface) !important;
+  background: transparent !important;
   color: var(--obs-text-2) !important;
+  font-size: 12px !important;
 }
 
+// ── Icon buttons ───────────────────────────────────────────────────────────
 .mat-mdc-icon-button {
   color: var(--obs-text-2) !important;
-  &:hover { color: var(--obs-text-1) !important; }
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  &:hover { color: var(--obs-text-1) !important; background: var(--obs-surface-2) !important; }
+
+  .mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
 }
 
+// ── Primary button — slim, light on dark ──────────────────────────────────
 .mat-mdc-raised-button,
 .mat-mdc-unelevated-button,
 .mat-mdc-flat-button {
   background: var(--obs-text-1) !important;
   color: var(--obs-bg) !important;
   box-shadow: none !important;
+  border-radius: var(--obs-radius-sm) !important;
+  height: 36px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 0 16px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
 
-  &:hover { opacity: 0.9; }
+  &:hover:not([disabled]) { background: #ffffff !important; }
   &[disabled] { opacity: 0.4; }
+
+  .mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: 6px !important;
+  }
 }
 
+// ── Material form fields — properly themed outlined inputs ────────────────
 .mat-mdc-form-field {
-  --mdc-outlined-text-field-outline-color: var(--obs-border);
+  --mdc-outlined-text-field-outline-color: var(--obs-border-2);
   --mdc-outlined-text-field-hover-outline-color: var(--obs-text-3);
   --mdc-outlined-text-field-focus-outline-color: var(--obs-text-1);
+  --mdc-outlined-text-field-disabled-outline-color: var(--obs-border);
+
   --mdc-outlined-text-field-label-text-color: var(--obs-text-3);
+  --mdc-outlined-text-field-hover-label-text-color: var(--obs-text-2);
+  --mdc-outlined-text-field-focus-label-text-color: var(--obs-text-1);
+
   --mdc-outlined-text-field-input-text-color: var(--obs-text-1);
+  --mdc-outlined-text-field-input-text-placeholder-color: var(--obs-text-3);
+
+  --mdc-outlined-text-field-caret-color: var(--obs-text-1);
+
+  --mdc-outlined-text-field-container-shape: 6px;
+}
+
+// Slim form field everywhere
+.mat-mdc-text-field-wrapper {
+  background: transparent !important;
+}
+
+.mat-mdc-form-field-icon-suffix {
+  color: var(--obs-text-3) !important;
+}
+
+// Hide the underline animation on legacy form fields
+.mdc-line-ripple { display: none !important; }
+
+// ── Select & menu panels ───────────────────────────────────────────────────
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel,
+.cdk-overlay-pane .mat-mdc-autocomplete-panel {
+  background: var(--obs-surface) !important;
+  border: 0.5px solid var(--obs-border-2) !important;
+  border-radius: var(--obs-radius-md) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+}
+
+.mat-mdc-option {
+  color: var(--obs-text-1) !important;
+  font-size: 13px !important;
+  min-height: 36px !important;
+
+  &:hover:not(.mat-mdc-option-disabled) { background: var(--obs-surface-2) !important; }
+  &.mat-mdc-option-active { background: var(--obs-surface-2) !important; }
+  &.mdc-list-item--selected:not(.mat-mdc-option-multiple) {
+    background: var(--obs-surface-3) !important;
+    color: var(--obs-text-1) !important;
+  }
+}
+
+// ── Datepicker panel ───────────────────────────────────────────────────────
+.mat-datepicker-content {
+  background: var(--obs-surface) !important;
+  border: 0.5px solid var(--obs-border-2) !important;
+  border-radius: var(--obs-radius-md) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+  color: var(--obs-text-1) !important;
+}
+
+.mat-calendar { color: var(--obs-text-1) !important; }
+.mat-calendar-table-header th { color: var(--obs-text-3) !important; }
+.mat-calendar-body-cell-content {
+  color: var(--obs-text-2) !important;
+  border-color: transparent !important;
+}
+.mat-calendar-body-cell:hover .mat-calendar-body-cell-content {
+  background: var(--obs-surface-2) !important;
+}
+.mat-calendar-body-selected {
+  background: var(--obs-text-1) !important;
+  color: var(--obs-bg) !important;
+}
+.mat-calendar-arrow { fill: var(--obs-text-2) !important; }
+.mat-calendar-period-button { color: var(--obs-text-1) !important; }
+.mat-calendar-previous-button,
+.mat-calendar-next-button { color: var(--obs-text-2) !important; }
+
+// ── Dialog / snackbar ──────────────────────────────────────────────────────
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background: var(--obs-surface) !important;
+  border: 0.5px solid var(--obs-border-2) !important;
+  border-radius: var(--obs-radius-md) !important;
 }
 
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-container-color: var(--obs-surface-3);
   --mdc-snackbar-supporting-text-color: var(--obs-text-1);
+  --mat-mdc-snack-bar-button-color: var(--obs-text-1);
 }
 
-.mat-datepicker-content,
-.mat-mdc-select-panel,
-.mat-mdc-menu-panel {
-  background: var(--obs-surface) !important;
-  border: 0.5px solid var(--obs-border) !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-}
-
-.mat-calendar { color: var(--obs-text-1) !important; }
-.mat-calendar-table-header th { color: var(--obs-text-3) !important; }
-.mat-calendar-body-cell-content { color: var(--obs-text-2) !important; }
-.mat-calendar-body-selected { background: var(--obs-text-1) !important; color: var(--obs-bg) !important; }
-
-// ── Leaflet tooltip (used by the order map) ────────────────────────────────
+// ── Leaflet ───────────────────────────────────────────────────────────────
 .leaflet-tooltip.obsidian-tooltip {
   background: var(--obs-surface) !important;
-  border: 0.5px solid var(--obs-border) !important;
-  border-radius: var(--obs-radius-md) !important;
+  border: 0.5px solid var(--obs-border-2) !important;
+  border-radius: var(--obs-radius-sm) !important;
   padding: 8px 10px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
   color: var(--obs-text-1) !important;
-  font-family: 'Roboto', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
 }
-.leaflet-tooltip.obsidian-tooltip::before {
-  border-top-color: var(--obs-surface) !important;
-}
+.leaflet-tooltip.obsidian-tooltip::before { border-top-color: var(--obs-surface) !important; }
 .leaflet-control-zoom {
-  border: 0.5px solid var(--obs-border) !important;
+  border: 0.5px solid var(--obs-border-2) !important;
   border-radius: var(--obs-radius-sm) !important;
   overflow: hidden;
   a {
     background: var(--obs-surface) !important;
     color: var(--obs-text-2) !important;
     border: none !important;
+    border-bottom: 0.5px solid var(--obs-border-2) !important;
     &:hover { background: var(--obs-surface-2) !important; color: var(--obs-text-1) !important; }
+    &:last-child { border-bottom: none !important; }
   }
 }
 
@@ -185,3 +283,4 @@ html, body {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--obs-surface-3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--obs-border-2); }

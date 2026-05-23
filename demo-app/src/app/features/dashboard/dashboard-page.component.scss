@@ -1,10 +1,12 @@
 .dashboard {
   height: 100%;
-  padding: 20px 24px;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  gap: 12px;
-  overflow: hidden;
+  min-height: 100%;
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 // ── Header ─────────────────────────────────────────────────────────────────
@@ -12,17 +14,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
+  flex-shrink: 0;
 }
 
 .dash-title {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 500;
   color: var(--obs-text-1);
+  letter-spacing: -0.01em;
 }
 
-// ── Date range ─────────────────────────────────────────────────────────────
+// ── Date range — compact, integrated ───────────────────────────────────────
 .date-range {
   display: flex;
   align-items: center;
@@ -33,29 +37,43 @@
   width: 130px;
 
   ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
-  ::ng-deep .mat-mdc-form-field-infix { padding: 6px 0 !important; min-height: 32px !important; }
-  ::ng-deep input { font-size: 12px !important; color: var(--obs-text-2) !important; }
+  ::ng-deep .mat-mdc-form-field-infix {
+    padding: 7px 0 !important;
+    min-height: 32px !important;
+  }
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 34px;
+    padding: 0 10px !important;
+  }
+  ::ng-deep input { font-size: 12px !important; }
+  ::ng-deep .mat-datepicker-toggle .mdc-icon-button { padding: 0 !important; width: 28px !important; height: 28px !important; }
+  ::ng-deep .mat-datepicker-toggle .mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
 }
 
 .dr-sep { color: var(--obs-text-3); font-size: 12px; }
 
 .dr-apply {
-  padding: 6px 14px;
+  padding: 0 14px;
+  height: 34px;
   border-radius: var(--obs-radius-sm);
-  border: 0.5px solid var(--obs-border);
+  border: 0.5px solid var(--obs-border-2);
   background: transparent;
   color: var(--obs-text-1);
   font-size: 12px;
   font-family: inherit;
+  font-weight: 500;
   cursor: pointer;
-  &:hover { background: var(--obs-surface-2); }
+  transition: background 0.12s, border-color 0.12s;
+
+  &:hover { background: var(--obs-surface-2); border-color: var(--obs-text-3); }
 }
 
-// ── KPI cards ──────────────────────────────────────────────────────────────
+// ── KPI cards — restrained but with character ──────────────────────────────
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .kpi-card {
@@ -65,38 +83,54 @@
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  position: relative;
+
+  // very subtle inner highlight on the top edge
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 12px; right: 12px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  }
 }
 
 .kpi-label {
   margin: 0;
   font-size: 11px;
+  font-weight: 500;
   color: var(--obs-text-3);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .kpi-value {
   margin: 0;
-  font-size: 1.6rem;
-  font-weight: 400;
+  font-size: 22px;
+  font-weight: 500;
   color: var(--obs-text-1);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+// ── Mid row — chart + status — explicit height so it doesn't collapse ─────
+.mid-grid {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 12px;
+  flex: 1 1 320px;
+  min-height: 320px;
 }
 
 // ── Cards ──────────────────────────────────────────────────────────────────
-.mid-grid {
-  display: grid;
-  grid-template-columns: 1fr 200px;
-  gap: 12px;
-  min-height: 0;
-}
-
 .card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
   border-radius: var(--obs-radius-md);
   padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   overflow: hidden;
 }
@@ -105,90 +139,116 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
 }
 
 .card-title {
   margin: 0;
-  font-size: 12px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--obs-text-3);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .header-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .model-tag {
   font-size: 10px;
-  padding: 2px 6px;
-  border: 0.5px solid var(--obs-border);
-  border-radius: var(--obs-radius-sm);
+  padding: 2px 7px;
+  border: 0.5px solid var(--obs-border-2);
+  border-radius: 4px;
   color: var(--obs-text-2);
-  font-family: 'Roboto Mono', monospace;
-  text-transform: none;
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
   letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
 }
 
 // ── Chart ──────────────────────────────────────────────────────────────────
 .chart-card { display: flex; flex-direction: column; }
-.chart-area { flex: 1; min-height: 80px; }
+.chart-area { flex: 1; min-height: 180px; }
 
-.period-tabs { display: flex; gap: 4px; }
+.period-tabs { display: flex; gap: 2px; }
 
 .ptab {
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: var(--obs-radius-sm);
   border: none;
   background: transparent;
   color: var(--obs-text-3);
   font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
   font-family: inherit;
+  transition: color 0.12s, background 0.12s;
 
-  &:hover  { color: var(--obs-text-1); }
-  &.active { color: var(--obs-text-1); border-bottom: 1px solid var(--obs-text-1); border-radius: 0; }
+  &:hover  { color: var(--obs-text-2); }
+  &.active { color: var(--obs-text-1); background: var(--obs-surface-3); }
 }
 
 // ── Status list ────────────────────────────────────────────────────────────
-.status-list { display: flex; flex-direction: column; gap: 8px; }
-.status-row { display: flex; align-items: center; justify-content: space-between; }
-.status-count { font-size: 13px; color: var(--obs-text-1); }
+.status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.status-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  font-variant-numeric: tabular-nums;
+}
 
 // ── Bottom row ─────────────────────────────────────────────────────────────
 .bot-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
-  min-height: 0;
+  flex: 1 1 280px;
+  min-height: 280px;
 }
 
-.bot-card { height: 100%; max-height: 100%; overflow: hidden; }
+.bot-card {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
 
+// ── Recent orders ──────────────────────────────────────────────────────────
 .orders-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   overflow-y: auto;
-  max-height: calc(100% - 30px);
+  flex: 1;
 }
 
 .order-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .order-person {
-  flex: 1;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--obs-text-1);
   white-space: nowrap;
   overflow: hidden;
@@ -196,7 +256,8 @@
 }
 
 .order-amount {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--obs-text-2);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
