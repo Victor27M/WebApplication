@@ -1,55 +1,41 @@
 @use '@angular/material' as mat;
 @include mat.core();
 
-// ── Refined dark theme — quiet, balanced, intentional ──────────────────────
+// ── Theme tokens ───────────────────────────────────────────────────────────
 :root {
-  // Background layers — slight gradient of depth
   --obs-bg:         #0a0a0a;
   --obs-surface:    #131313;
   --obs-surface-2:  #1a1a1a;
   --obs-surface-3:  #222222;
 
-  // Borders — two stops for hover affordance
   --obs-border:    #1f1f1f;
   --obs-border-2:  #2a2a2a;
 
-  // Text — three levels
   --obs-text-1:  #e8e8e8;
   --obs-text-2:  #8a8a8a;
   --obs-text-3:  #5a5a5a;
 
-  // Radii — small but not flat
   --obs-radius-sm:  6px;
   --obs-radius-md:  8px;
   --obs-radius-lg:  10px;
 
-  // Sidebar widths
   --obs-sidebar-w-collapsed: 56px;
   --obs-sidebar-w-expanded:  200px;
 
-  // ── Status colors — tinted backgrounds tied to text color ────────────────
-  // The 1c1c1c trick from before made badges look like floating text. These
-  // use a true tint of the foreground at low opacity — anchored, not floating.
   --status-success-bg: rgba(74, 222, 128, 0.10);
   --status-success-fg: #4ade80;
-
-  --status-info-bg: rgba(147, 197, 253, 0.10);
-  --status-info-fg: #93c5fd;
-
+  --status-info-bg:    rgba(147, 197, 253, 0.10);
+  --status-info-fg:    #93c5fd;
   --status-shipped-bg: rgba(196, 181, 253, 0.10);
   --status-shipped-fg: #c4b5fd;
-
   --status-pending-bg: rgba(251, 191, 36, 0.10);
   --status-pending-fg: #fbbf24;
-
-  --status-failed-bg: rgba(248, 113, 113, 0.10);
-  --status-failed-fg: #f87171;
-
+  --status-failed-bg:  rgba(248, 113, 113, 0.10);
+  --status-failed-fg:  #f87171;
   --status-neutral-bg: rgba(138, 138, 138, 0.08);
   --status-neutral-fg: #8a8a8a;
 }
 
-// ── Body / global ──────────────────────────────────────────────────────────
 html, body {
   height: 100%;
   margin: 0;
@@ -63,10 +49,9 @@ html, body {
 }
 
 * { box-sizing: border-box; }
-
 a { color: inherit; text-decoration: none; }
 
-// ── Status badges — tinted, weighted, anchored ─────────────────────────────
+// ── Status badges ──────────────────────────────────────────────────────────
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -88,13 +73,13 @@ a { color: inherit; text-decoration: none; }
   &.status-refunded   { color: var(--status-neutral-fg); background: var(--status-neutral-bg); }
 }
 
-// ── Material table overrides ───────────────────────────────────────────────
+// ── Tables ─────────────────────────────────────────────────────────────────
 .mat-mdc-table {
   background: transparent !important;
   color: var(--obs-text-1) !important;
 }
-
-.mat-mdc-header-row { background: transparent !important; }
+.mat-mdc-header-row { background: transparent !important; height: 40px !important; }
+.mat-mdc-row        { background: transparent !important; height: 52px !important; }
 
 .mat-mdc-header-cell {
   color: var(--obs-text-3) !important;
@@ -103,64 +88,85 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border-bottom: 0.5px solid var(--obs-border) !important;
-  padding: 12px 16px !important;
+  padding: 0 16px !important;
 }
 
 .mat-mdc-cell {
   color: var(--obs-text-1) !important;
   font-size: 13px !important;
   border-bottom: 0.5px solid var(--obs-border) !important;
-  padding: 14px 16px !important;
+  padding: 0 16px !important;
 }
 
-.mat-mdc-row:hover .mat-mdc-cell {
-  background: var(--obs-surface-2) !important;
-}
+.mat-mdc-row:hover .mat-mdc-cell { background: var(--obs-surface-2) !important; }
 
+// Sort header arrow
+.mat-sort-header-arrow { color: var(--obs-text-3) !important; }
+
+// ── PAGINATOR — every selector covered ────────────────────────────────────
 .mat-mdc-paginator {
   background: transparent !important;
+  color: var(--obs-text-2) !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  border-top: 0.5px solid var(--obs-border) !important;
+}
+
+.mat-mdc-paginator-container {
+  min-height: 44px !important;
+  padding: 0 12px !important;
+  color: var(--obs-text-2) !important;
+}
+
+.mat-mdc-paginator-page-size,
+.mat-mdc-paginator-range-actions {
+  color: var(--obs-text-2) !important;
+}
+
+.mat-mdc-paginator-page-size-label,
+.mat-mdc-paginator-range-label {
   color: var(--obs-text-2) !important;
   font-size: 12px !important;
 }
 
-// ── Icon buttons ───────────────────────────────────────────────────────────
-.mat-mdc-icon-button {
-  color: var(--obs-text-2) !important;
-  width: 32px !important;
-  height: 32px !important;
-  padding: 0 !important;
-  &:hover { color: var(--obs-text-1) !important; background: var(--obs-surface-2) !important; }
+.mat-mdc-paginator-page-size-select {
+  width: 64px !important;
+  margin: 0 8px !important;
 
-  .mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
-}
-
-// ── Primary button — slim, light on dark ──────────────────────────────────
-.mat-mdc-raised-button,
-.mat-mdc-unelevated-button,
-.mat-mdc-flat-button {
-  background: var(--obs-text-1) !important;
-  color: var(--obs-bg) !important;
-  box-shadow: none !important;
-  border-radius: var(--obs-radius-sm) !important;
-  height: 36px !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  padding: 0 16px !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-
-  &:hover:not([disabled]) { background: #ffffff !important; }
-  &[disabled] { opacity: 0.4; }
-
-  .mat-icon {
-    font-size: 16px !important;
-    width: 16px !important;
-    height: 16px !important;
-    margin-right: 6px !important;
+  // Slim outlined field
+  .mat-mdc-text-field-wrapper {
+    height: 32px !important;
+    padding: 0 8px !important;
+    background: transparent !important;
   }
+  .mat-mdc-form-field-infix {
+    padding: 4px 0 !important;
+    min-height: 24px !important;
+  }
+  .mat-mdc-form-field-flex { align-items: center; }
+  .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+  .mat-mdc-select-arrow { color: var(--obs-text-2) !important; }
+  .mat-mdc-select-value-text { color: var(--obs-text-1) !important; font-size: 12px !important; }
+
+  // Outline color
+  --mdc-outlined-text-field-outline-color: var(--obs-border-2);
+  --mdc-outlined-text-field-hover-outline-color: var(--obs-text-3);
+  --mdc-outlined-text-field-focus-outline-color: var(--obs-text-1);
+  --mdc-outlined-text-field-container-shape: 6px;
 }
 
-// ── Material form fields — properly themed outlined inputs ────────────────
+// Paginator navigation buttons
+.mat-mdc-paginator .mat-mdc-icon-button {
+  color: var(--obs-text-2) !important;
+  &:hover:not([disabled]) { color: var(--obs-text-1) !important; background: var(--obs-surface-2) !important; }
+  &[disabled] { color: var(--obs-text-3) !important; opacity: 0.4; }
+}
+
+.mat-mdc-paginator .mat-mdc-paginator-icon {
+  fill: currentColor !important;
+}
+
+// ── Form fields (outlined) ────────────────────────────────────────────────
 .mat-mdc-form-field {
   --mdc-outlined-text-field-outline-color: var(--obs-border-2);
   --mdc-outlined-text-field-hover-outline-color: var(--obs-text-3);
@@ -175,23 +181,60 @@ a { color: inherit; text-decoration: none; }
   --mdc-outlined-text-field-input-text-placeholder-color: var(--obs-text-3);
 
   --mdc-outlined-text-field-caret-color: var(--obs-text-1);
-
   --mdc-outlined-text-field-container-shape: 6px;
 }
 
-// Slim form field everywhere
-.mat-mdc-text-field-wrapper {
-  background: transparent !important;
-}
-
-.mat-mdc-form-field-icon-suffix {
-  color: var(--obs-text-3) !important;
-}
-
-// Hide the underline animation on legacy form fields
+.mat-mdc-text-field-wrapper { background: transparent !important; }
+.mat-mdc-form-field-icon-suffix { color: var(--obs-text-3) !important; }
 .mdc-line-ripple { display: none !important; }
 
-// ── Select & menu panels ───────────────────────────────────────────────────
+// ── Buttons ────────────────────────────────────────────────────────────────
+.mat-mdc-icon-button {
+  color: var(--obs-text-2) !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+
+  &:hover:not([disabled]) { color: var(--obs-text-1) !important; background: var(--obs-surface-2) !important; }
+  &[disabled] { opacity: 0.3; }
+
+  .mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-flat-button {
+  background: var(--obs-text-1) !important;
+  color: var(--obs-bg) !important;
+  box-shadow: none !important;
+  border-radius: var(--obs-radius-sm) !important;
+  height: 36px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 0 16px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  font-family: inherit !important;
+
+  &:hover:not([disabled]) { background: #ffffff !important; }
+  &[disabled] { opacity: 0.4; }
+
+  .mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; margin-right: 6px !important; }
+}
+
+.mat-mdc-outlined-button {
+  border-color: var(--obs-border-2) !important;
+  color: var(--obs-text-1) !important;
+  height: 36px !important;
+  font-size: 13px !important;
+  border-radius: var(--obs-radius-sm) !important;
+  text-transform: none !important;
+  font-family: inherit !important;
+
+  &:hover:not([disabled]) { background: var(--obs-surface-2) !important; border-color: var(--obs-text-3) !important; }
+}
+
+// ── Select / menu / autocomplete panels ───────────────────────────────────
 .mat-mdc-select-panel,
 .mat-mdc-menu-panel,
 .cdk-overlay-pane .mat-mdc-autocomplete-panel {
@@ -214,7 +257,18 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
-// ── Datepicker panel ───────────────────────────────────────────────────────
+// ── Menu items ────────────────────────────────────────────────────────────
+.mat-mdc-menu-item {
+  color: var(--obs-text-1) !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+
+  &:hover { background: var(--obs-surface-2) !important; }
+
+  .mat-icon { color: var(--obs-text-2) !important; }
+}
+
+// ── Datepicker ─────────────────────────────────────────────────────────────
 .mat-datepicker-content {
   background: var(--obs-surface) !important;
   border: 0.5px solid var(--obs-border-2) !important;
@@ -241,42 +295,120 @@ a { color: inherit; text-decoration: none; }
 .mat-calendar-previous-button,
 .mat-calendar-next-button { color: var(--obs-text-2) !important; }
 
-// ── Dialog / snackbar ──────────────────────────────────────────────────────
+// ── Dialogs ────────────────────────────────────────────────────────────────
 .mat-mdc-dialog-container .mdc-dialog__surface {
   background: var(--obs-surface) !important;
   border: 0.5px solid var(--obs-border-2) !important;
   border-radius: var(--obs-radius-md) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5) !important;
+  color: var(--obs-text-1) !important;
 }
 
+.mat-mdc-dialog-title {
+  color: var(--obs-text-1) !important;
+  font-family: inherit !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+}
+
+.mat-mdc-dialog-content {
+  color: var(--obs-text-2) !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+}
+
+// ── Snackbar ───────────────────────────────────────────────────────────────
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-container-color: var(--obs-surface-3);
   --mdc-snackbar-supporting-text-color: var(--obs-text-1);
   --mat-mdc-snack-bar-button-color: var(--obs-text-1);
+
+  .mdc-snackbar__surface {
+    border: 0.5px solid var(--obs-border-2) !important;
+    border-radius: var(--obs-radius-md) !important;
+  }
 }
 
-// ── Leaflet ───────────────────────────────────────────────────────────────
-.leaflet-tooltip.obsidian-tooltip {
-  background: var(--obs-surface) !important;
-  border: 0.5px solid var(--obs-border-2) !important;
-  border-radius: var(--obs-radius-sm) !important;
-  padding: 8px 10px !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
-  color: var(--obs-text-1) !important;
-  font-family: 'Inter', sans-serif !important;
+// ── Tabs ───────────────────────────────────────────────────────────────────
+.mat-mdc-tab-group {
+  --mdc-secondary-navigation-tab-container-height: 36px;
 }
-.leaflet-tooltip.obsidian-tooltip::before { border-top-color: var(--obs-surface) !important; }
-.leaflet-control-zoom {
-  border: 0.5px solid var(--obs-border-2) !important;
-  border-radius: var(--obs-radius-sm) !important;
-  overflow: hidden;
-  a {
-    background: var(--obs-surface) !important;
-    color: var(--obs-text-2) !important;
-    border: none !important;
-    border-bottom: 0.5px solid var(--obs-border-2) !important;
-    &:hover { background: var(--obs-surface-2) !important; color: var(--obs-text-1) !important; }
-    &:last-child { border-bottom: none !important; }
+
+.mat-mdc-tab {
+  color: var(--obs-text-3) !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  min-width: auto !important;
+  padding: 0 16px !important;
+
+  &.mdc-tab--active {
+    color: var(--obs-text-1) !important;
+    .mdc-tab__text-label { color: var(--obs-text-1) !important; }
   }
+}
+
+.mdc-tab-indicator__content--underline {
+  border-color: var(--obs-text-1) !important;
+}
+
+// ── Tooltip ────────────────────────────────────────────────────────────────
+.mat-mdc-tooltip {
+  --mdc-plain-tooltip-container-color: var(--obs-surface-3);
+  --mdc-plain-tooltip-supporting-text-color: var(--obs-text-1);
+  --mdc-plain-tooltip-supporting-text-size: 11px;
+  --mdc-plain-tooltip-container-shape: 4px;
+  font-family: inherit !important;
+}
+
+// ── Checkbox / radio / slide-toggle ───────────────────────────────────────
+.mat-mdc-checkbox {
+  --mdc-checkbox-unselected-icon-color: var(--obs-text-3);
+  --mdc-checkbox-unselected-hover-icon-color: var(--obs-text-2);
+  --mdc-checkbox-selected-icon-color: var(--obs-text-1);
+  --mdc-checkbox-selected-hover-icon-color: #ffffff;
+  --mdc-checkbox-selected-checkmark-color: var(--obs-bg);
+}
+
+.mat-mdc-radio-button {
+  --mdc-radio-unselected-icon-color: var(--obs-text-3);
+  --mdc-radio-selected-icon-color: var(--obs-text-1);
+}
+
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: var(--obs-text-1);
+  --mdc-switch-selected-handle-color: var(--obs-bg);
+}
+
+// ── Page-level layout primitives (use these in every page) ────────────────
+.page {
+  padding: 20px 24px 24px;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--obs-text-1);
+  letter-spacing: -0.01em;
+}
+
+.page-card {
+  background: var(--obs-surface);
+  border: 0.5px solid var(--obs-border);
+  border-radius: var(--obs-radius-md);
+  overflow: hidden;
 }
 
 // ── Scrollbars ─────────────────────────────────────────────────────────────

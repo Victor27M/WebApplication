@@ -1,10 +1,12 @@
 <div class="map-card">
   <header class="card-header">
     <h2 class="card-title">Order map</h2>
+    @if (pinCount() > 0) {
+      <span class="pin-count">{{ pinCount() }} cities</span>
+    }
   </header>
 
   <div #mapContainer class="map-canvas"
-       [class.is-loading]="isLoading()"
        role="region" aria-label="Order destinations map">
   </div>
 

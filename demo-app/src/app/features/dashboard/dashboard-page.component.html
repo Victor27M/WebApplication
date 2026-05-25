@@ -21,7 +21,7 @@
     </div>
   </header>
 
-  <!-- KPIs - plain numbers, no sparklines -->
+  <!-- KPIs -->
   <section class="kpi-grid">
     <article class="kpi-card">
       <p class="kpi-label">Total revenue</p>
@@ -70,7 +70,7 @@
           <line x1="230" y1="0" x2="230" y2="130"
                 stroke="var(--obs-border)" stroke-width="0.5" stroke-dasharray="2 3"/>
           <text x="232" y="11" font-size="7" fill="var(--obs-text-3)"
-                font-family="Roboto,sans-serif">forecast →</text>
+                font-family="Inter,sans-serif">forecast →</text>
           @if (chartPath().fLine) {
             <path [attr.d]="chartPath().fLine" fill="none"
                   stroke="var(--obs-text-2)" stroke-width="1.5"
@@ -93,9 +93,9 @@
     </article>
   </section>
 
-  <!-- Bottom row -->
+  <!-- Recent orders + Delivery calendar -->
   <section class="bot-grid">
-    <article class="card bot-card">
+    <article class="card">
       <header class="card-header"><h2 class="card-title">Recent orders</h2></header>
       <ul class="orders-list">
         @for (order of recentOrders(); track order.id) {
@@ -108,7 +108,11 @@
       </ul>
     </article>
 
-    <app-order-map class="bot-card"></app-order-map>
-    <app-delivery-calendar class="bot-card"></app-delivery-calendar>
+    <app-delivery-calendar></app-delivery-calendar>
+  </section>
+
+  <!-- Map: full-width row below -->
+  <section class="map-row">
+    <app-order-map></app-order-map>
   </section>
 </div>

@@ -1,8 +1,12 @@
 :host {
-  display: block;
-  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
 }
 
+// Fixed pixel dimensions — Leaflet initializes at the correct size first time.
+// 700×360 is a good aspect ratio (1.94) close to Romania's 2.04.
 .map-card {
   background: var(--obs-surface);
   border: 0.5px solid var(--obs-border);
@@ -10,35 +14,56 @@
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  width: 700px;
+  height: 360px;
+  flex-shrink: 0;
   overflow: hidden;
 }
 
 .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
   flex-shrink: 0;
 }
 
 .card-title {
   margin: 0;
-  font-size: 12px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--obs-text-3);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
+.pin-count { font-size: 10px; color: var(--obs-text-3); }
+
 .map-canvas {
-  flex: 1;
-  min-height: 0;
+  width: 664px;   // 700 - (18*2) padding
+  height: 296px;  // 360 - (16*2) padding - 30 header
   border-radius: var(--obs-radius-sm);
   overflow: hidden;
-  background: var(--obs-bg);
-  &.is-loading { opacity: 0.4; }
+  background: #1a1a1a;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .map-error {
   margin-top: 6px;
   font-size: 11px;
   color: var(--status-failed-fg);
+}
+
+::ng-deep .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  background: #1a1a1a !important;
+  font-family: 'Inter', 'Roboto', sans-serif !important;
+  cursor: default !important;
+}
+
+// Dark filter for OSM tiles
+::ng-deep .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.65);
 }
